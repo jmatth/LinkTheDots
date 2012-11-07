@@ -27,13 +27,10 @@ for file in $(git ls-files)
 do
 	ignoreThis=false
 
-	echo "current file is $file"
-
 	for word in ${IGNORE[@]}
 	do
 		if echo $file | grep -q $word
 		then
-			echo "found $word in $file"
 			ignoreThis=true
 			break
 		fi
