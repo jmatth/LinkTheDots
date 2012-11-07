@@ -22,20 +22,23 @@ pushd $DIR &> /dev/null
 
 # to the ignore array.
 echo -e "\e[1;35mSymlinking all other config files:\e[m"
-for file in $(git ls-files | egrep -v $IGNORE)
+for file in $(git ls-files)
 do
 	ignoreThis=false
+
+	echo "current file is $file"
 
 	for word in ${IGNORE[@]}
 	do
 		if echo $file | grep -q $word
 		then
+			echo "found $word in $file"
 			ignoreThis=true
 			break
 		fi
 	done
 
-	if ! [ ignoreThis ]
+	if [ $ignoreThis != true ]
 	then
 		if [ "$(readlink ~/.$file)" != "$DIR/$file" ]
 		then
@@ -55,13 +58,16 @@ do
 done
 
 # Last, we install a post-merge hook to keep everything up to date.
-if ! [ -f .git/hooks/post-merge ]
+if ! [ -f $DIR/.git/hooks/post-merge ]
 then
 	echo "Installing post merge hook"
-	hook=".git/hooks/post-merge"
+	hook="$DIR/.git/hooks/post-merge"
 	echo "#!/usr/bin/env bash" > $hook
 	echo "cd $DIR" >> $hook
 	echo "git submodule init && git submodule update" >> $hook
+
+	# if this script was run with an argument then we want
+	# to keep it when it's run by the hook.
 	if ! [ -z $1 ]
 	then
 		echo "./link.sh $1" >> $hook
@@ -73,3 +79,5 @@ then
 	echo "Assuming submodules are empty, initializing now"
 	git submodule init && git submodule update
 fi
+
+popd &> /dev/null
