@@ -22,7 +22,7 @@ done
 pushd $DIR &> /dev/null
 
 # to the ignore array.
-echo -e "\e[1;35mSymlinking all other config files:\e[m"
+echo -e "\e[1;35mSymlinking dotfiles:\e[m"
 for file in $(git ls-files)
 do
 	ignoreThis=false
