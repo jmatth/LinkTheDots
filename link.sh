@@ -5,6 +5,7 @@ declare -a IGNORE
 
 # Obviously we don't want to link this script.
 IGNORE+=('link.sh')
+IGNORE+=('.link_ext')
 
 # Get current directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
