@@ -67,16 +67,15 @@ then
 	echo "cd $DIR" >> $hook
 	echo "git submodule init && git submodule update" >> $hook
 
-	# if this script was run with an argument then we want
-	# to keep it when it's run by the hook.
-	if ! [ -z $1 ]
-	then
-		echo "./link.sh $1" >> $hook
-	else
-		echo "./link.sh" >> $hook
-	fi
+	# if this script was run with any arguments then we want
+	# to keep them when it's run by the hook.
+	echo "./link.sh $*" >> $hook
+
+	# Make it executable
 	chmod 755 $hook
 
+	# This seems to be the first run, so we'll go ahead
+	# and initialize the submodules.
 	echo "Assuming submodules are empty, initializing now"
 	git submodule init && git submodule update
 fi
