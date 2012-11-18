@@ -5,7 +5,7 @@ Easily keep your git-managed dotfiles linked to your home directory with this si
 
 Prerequisite
 ------------
-This script assumes you have a dotfiles repository that mimics the appearance of your home directory without the leading `.`.
+This script assumes you have a dotfiles repository that mimics the layout of your home directory without the leading `.`.
 So say for example you want `~/.bashrc`, `~/.vimrc`, and `~/.vim/colors/inkpot.vim` to be managed by git. Then your dotfiles directory should look like:
 <pre>
 dotfiles/
@@ -31,4 +31,8 @@ So this is all well and good, but what if you have some files you want to do som
 
 2. Performs whatever special checks and actions you require.
 
-Simply drop this script into the directory link\_ext and rerun `./link.sh`. Your script will be executed before any linking takes place and any files matching the patterns you have added to `IGNORE` will be...well, ignored. For an example look, at the included `99-example` file in `link_ext`.
+Simply drop this script into the directory link\_ext and rerun `./link.sh`. Your script will be executed before any linking takes place and any files matching the patterns you have added to `IGNORE` will be...well, ignored. 
+
+Also, please keep in mind that files are ignored based on [regular expressions](http://en.wikipedia.org/wiki/Regular_expression). So if you have two files called `myfile` and `myfile2`, and you add the string `"myfile"` to the IGNORE array, then both files will be ignored. If you wanted to ignore just the first file, you would have to add `"^myfile$"` to IGNORE.
+
+For a simple example, look at the included `99-example` file in `link_ext`.
