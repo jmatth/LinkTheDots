@@ -17,14 +17,15 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 EXT_DIR="$DIR/.link_ext"
 
 # Now we run any custom extensions.
-for i in $(ls $EXT_DIR)
+for script in $(ls $EXT_DIR)
 do
-	source $EXT_DIR/$i
+	source $EXT_DIR/$script
 done
 
 pushd $DIR &> /dev/null
 
-# to the ignore array.
+# Now symlink and files that git is tracking
+# but that haven't been added to the ignore array.
 echo -e "\e[1;35mSymlinking dotfiles:\e[m"
 for file in $(git ls-files)
 do
@@ -65,7 +66,7 @@ then
 	hook="$DIR/.git/hooks/post-merge"
 	echo "#!/usr/bin/env bash" > $hook
 	echo "cd $DIR" >> $hook
-	echo "git submodule init && git submodule update" >> $hook
+	echo "git submodule update --init --recursive" >> $hook
 
 	# if this script was run with any arguments then we want
 	# to keep them when it's run by the hook.
@@ -77,7 +78,7 @@ then
 	# This seems to be the first run, so we'll go ahead
 	# and initialize the submodules.
 	echo "Assuming submodules are empty, initializing now"
-	git submodule init && git submodule update
+	git submodule update --init --recursive
 fi
 
 popd &> /dev/null
