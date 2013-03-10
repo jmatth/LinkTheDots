@@ -24,10 +24,10 @@ having all the files visible without having to resort to `ls -a`.
 Installation
 ------------
 
-Simply add and commit `link.sh` and optionally `.link_ext/99-example` to your
-dotfiles git repo. Then run ./link.sh inside the repo once on each machine you
-clone the repo to. The script will install a post-merge hook to keep all
-symlinks and submodules up to date whenever you pull new changes.
+Simply add and commit `link.sh` to your dotfiles git repo. Then run ./link.sh
+inside the repo once on each machine you clone the repo to. The script will
+install a post-merge hook to keep all symlinks and submodules up to date
+whenever you pull new changes.
 
 Extending
 ---------
