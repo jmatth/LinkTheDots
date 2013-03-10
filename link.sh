@@ -4,25 +4,24 @@
 # set -e
 
 # This array will contain any strings for directories you want to ignore.
-declare -a IGNORE
-
-# Obviously we don't want to link this script.
-IGNORE+=('link.sh')
-IGNORE+=('.link_ext')
-
-# Get current directory
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+declare -a link_ignore
 
 # This directory will contain any custom extension scripts.
-EXT_DIR="$DIR/.link_ext"
+ext_dir=".link_ext"
+
+# Obviously we don't want to link this script.
+link_ignore+=("$ext_dir")
+
+# Get current directory
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Now we run any custom extensions.
-for script in $(ls $EXT_DIR)
+for script in $(ls $ext_dir)
 do
-	source $EXT_DIR/$script
+	source $ext_dir/$script
 done
 
-pushd $DIR &> /dev/null
+pushd $dir &> /dev/null
 
 # Now symlink and files that git is tracking
 # but that haven't been added to the ignore array.
@@ -31,7 +30,7 @@ for file in $(git ls-files)
 do
 	ignoreThis=false
 
-	for word in ${IGNORE[@]}
+	for word in ${link_ignore[@]}
 	do
 		if echo $file | grep -q $word
 		then
@@ -42,7 +41,7 @@ do
 
 	if [ $ignoreThis != true ]
 	then
-		if [ "$(readlink ~/.$file)" != "$DIR/$file" ]
+		if [ "$(readlink ~/.$file)" != "$dir/$file" ]
 		then
 			echo $file
 			if test ! -d `dirname ~/.$file`
@@ -54,18 +53,18 @@ do
 				unlink ~/.$file
 			fi
 			rm -rf ~/.file 2>&1 >/dev/null
-			ln -sf $DIR/$file ~/.$file
+			ln -sf $dir/$file ~/.$file
 		fi
 	fi
 done
 
 # Last, we install a post-merge hook to keep everything up to date.
-if ! [ -f $DIR/.git/hooks/post-merge ]
+if ! [ -f $dir/.git/hooks/post-merge ]
 then
 	echo "Installing post merge hook"
-	hook="$DIR/.git/hooks/post-merge"
+	hook="$dir/.git/hooks/post-merge"
 	echo "#!/usr/bin/env bash" > $hook
-	echo "cd $DIR" >> $hook
+	echo "cd $dir" >> $hook
 	echo "git submodule update --init --recursive" >> $hook
 
 	# if this script was run with any arguments then we want

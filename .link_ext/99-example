@@ -14,12 +14,12 @@ return
 echo -e "\e[1;33mChecking ssh config.\e[m"
 
 # Add grep patterns for the affected files to the
-# IGNORE array, otherwise they'll get symlinked
+# link_ignore array, otherwise they'll get symlinked
 # with everything else later on.
-IGNORE+=('ssh_config')
+link_ignore+=('ssh_config')
 
 if ! [ -f ~/.ssh/config ]
 then
 	echo "No ssh config found, installing base."
-	cp $DIR/ssh_config ~/.ssh/config
+	cp $dir/ssh_config ~/.ssh/config
 fi

@@ -35,19 +35,19 @@ Extending
 So this is all well and good, but what if you have some files you want to do
 something special with? Easy, just write a simple script that:
 
-1. Adds the file name(s) to the array IGNORE.
+1. Adds the file name(s) to the array `link_ignore`.
 
 2. Performs whatever special checks and actions you require.
 
 Create a directory in the root of your dotfiles repo called `.link_ext` and
 place/commit your script there. Then the next time you run `./link.sh` your
 script will be executed before any linking takes place, and any files matching
-the patterns you have added to `IGNORE` will be...well, ignored. 
+the patterns you have added to `link_ignore` will be...well, ignored. 
 
 Also, please keep in mind that files are ignored based on
 [regular expressions](http://en.wikipedia.org/wiki/Regular_expression). So if
 you have two files called `myfile` and `myfile2`, and you add the string
-`"myfile"` to the IGNORE array, then both files will be ignored. If you wanted
-to ignore just the first file, you would have to add `"^myfile$"` to IGNORE.
+`"myfile"` to the `link_ignore` array, then both files will be ignored. If you wanted
+to ignore just the first file, you would have to add `"^myfile$"` to `link_ignore`.
 
 For a simple example, look at the included `99-example` file in `.link_ext`.
