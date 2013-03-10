@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Exit if any of the commands fail.
-set -e
+# set -e
 
 # This array will contain any strings for directories you want to ignore.
 declare -a IGNORE
