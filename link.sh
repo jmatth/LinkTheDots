@@ -10,7 +10,10 @@ declare -a link_ignore
 ext_dir=".link_ext"
 
 # Obviously we don't want to link this script.
+link_ignore+=('link.sh')
 link_ignore+=("$ext_dir")
+link_ignore+=('.gitmodules')
+link_ignore+=('.gitignore')
 
 # Get current directory
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
