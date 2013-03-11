@@ -15,16 +15,18 @@ link_ignore+=("$ext_dir")
 link_ignore+=('.gitmodules')
 link_ignore+=('.gitignore')
 
-# Get current directory
+# Get current directory and go there.
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd $dir &> /dev/null
 
 # Now we run any custom extensions.
-for script in $(ls $ext_dir)
-do
-	source $ext_dir/$script
-done
-
-pushd $dir &> /dev/null
+if [ -d $ext_dir ]
+then
+	for script in $(ls $ext_dir)
+	do
+		source $ext_dir/$script
+	done
+fi
 
 # Now symlink and files that git is tracking
 # but that haven't been added to the ignore array.
