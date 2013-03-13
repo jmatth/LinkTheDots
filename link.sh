@@ -34,7 +34,7 @@ function link_dotfiles()
 
 		for word in ${link_ignore}
 		do
-			if echo $file | grep -q $word
+			if echo $file | grep $word &> /dev/null
 			then
 				ignoreThis=true
 				break
