@@ -3,17 +3,15 @@
 # Exit if any of the commands fail.
 # set -e
 
-# This array will contain any strings for directories you want to ignore.
-declare -a link_ignore
+# This string will contain regex for any
+# files or directories you want to ignore.
+link_ignore=""
 
 # This directory will contain any custom extension scripts.
 ext_dir=".link_ext"
 
-# Obviously we don't want to link this script.
-link_ignore+=('link.sh')
-link_ignore+=("$ext_dir")
-link_ignore+=('.gitmodules')
-link_ignore+=('.gitignore')
+# Some default ignores.
+link_ignore="link\.sh $ext_dir \.gitmodules \.gitignore"
 
 # Get current directory and go there.
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -35,7 +33,7 @@ for file in $(git ls-files)
 do
 	ignoreThis=false
 
-	for word in ${link_ignore[@]}
+	for word in ${link_ignore}
 	do
 		if echo $file | grep -q $word
 		then

@@ -16,7 +16,7 @@ echo -e "\e[1;33mChecking ssh config.\e[m"
 # Add grep patterns for the affected files to the
 # link_ignore array, otherwise they'll get symlinked
 # with everything else later on.
-link_ignore+=('ssh_config')
+link_ignore="ssh_config $link_ignore"
 
 if ! [ -f ~/.ssh/config ]
 then
