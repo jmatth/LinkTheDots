@@ -12,23 +12,30 @@ function link_dotfiles()
 	# Some default ignores.
 	link_ignore="link\.sh $ext_dir \.gitmodules \.gitignore"
 
-	# Get current directory and go there.
-	dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-	pushd $dir &> /dev/null
+	# Get script directory
+	script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+	#Check if we're in a submodule and set directories accordingly.
+	if (cd $script_dir && is_submodule)
+	then
+		dotfiles_dir=`dirname $script_dir`
+	else
+		dotfiles_dir="$script_dir"
+	fi
 
 	# Now we run any custom extensions.
-	if [ -d $ext_dir ]
+	if [ -d $script_dir/$ext_dir ]
 	then
-		for script in $(ls $ext_dir)
+		for extension in $(ls $script_dir/$ext_dir)
 		do
-			source $ext_dir/$script
+			source $script_dir/$ext_dir/$extension
 		done
 	fi
 
 	# Now symlink and files that git is tracking
 	# but that haven't been added to the ignore array.
 	echo -e "\e[1;35mSymlinking dotfiles:\e[m"
-	for file in $(git ls-files)
+	for file in $(cd $dotfiles_dir && git ls-files)
 	do
 		ignoreThis=false
 
@@ -43,7 +50,7 @@ function link_dotfiles()
 
 		if [ $ignoreThis != true ]
 		then
-			if [ "$(readlink ~/.$file)" != "$dir/$file" ]
+			if [ "$(readlink ~/.$file)" != "$dotfiles_dir/$file" ]
 			then
 				echo $file
 				if test ! -d `dirname ~/.$file`
@@ -54,40 +61,39 @@ function link_dotfiles()
 				then
 					unlink ~/.$file
 				fi
-				rm -rf ~/.file 2>&1 >/dev/null
-				ln -sf $dir/$file ~/.$file
+				rm -rf ~/.$file &> /dev/null
+				ln -sf $dotfiles_dir/$file ~/.$file
 			fi
 		fi
 	done
 
 	# Last, we install a post-merge hook to keep everything up to date.
 	install_post_merge_hook
-
-	popd &> /dev/null
 }
 
 function install_post_merge_hook()
 {
-	if ! [ -f $dir/.git/hooks/post-merge ]
+	if ! [ -f $dotfiles_dir/.git/hooks/post-merge ]
 	then
 		echo "Installing post merge hook"
-		hook="$dir/.git/hooks/post-merge"
+		hook="$dotfiles_dir/.git/hooks/post-merge"
 		echo "#!/usr/bin/env bash" > $hook
-		echo "cd $dir" >> $hook
+		echo "cd $dotfiles_dir" >> $hook
 		echo "git submodule update --init --recursive" >> $hook
 
 		# if this script was run with any arguments then we want
 		# to keep them when it's run by the hook.
-		echo "./link.sh $*" >> $hook
+		echo "$script_dir/link.sh $*" >> $hook
 
 		# Make it executable
 		chmod 755 $hook
-
-		# This seems to be the first run, so we'll go ahead
-		# and initialize the submodules.
-		echo "Assuming submodules are empty, initializing now"
-		git submodule update --init --recursive
 	fi
+}
+
+function is_submodule() 
+{       
+	(cd "$(git rev-parse --show-toplevel)/.." && 
+	git rev-parse --is-inside-work-tree) | grep -q true
 }
 
 link_dotfiles
