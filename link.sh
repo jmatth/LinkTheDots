@@ -78,8 +78,8 @@ function install_post_merge_hook()
 		echo "Installing post merge hook"
 		hook="$dotfiles_dir/.git/hooks/post-merge"
 		echo "#!/usr/bin/env bash" > $hook
-		echo "cd $dotfiles_dir" >> $hook
-		echo "git submodule update --init --recursive" >> $hook
+		echo "(cd $dotfiles_dir && git submodule update --init --recursive)" \
+			>> $hook
 
 		# if this script was run with any arguments then we want
 		# to keep them when it's run by the hook.
@@ -87,6 +87,11 @@ function install_post_merge_hook()
 
 		# Make it executable
 		chmod 755 $hook
+
+		# This seems to be the first run, so we'll go ahead
+		# and initialize the submodules.
+		echo "Assuming submodules are empty, initializing now"
+		(cd $dotfiles_dir && git submodule update --init --recursive)
 	fi
 }
 
