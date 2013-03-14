@@ -7,10 +7,7 @@ function link_dotfiles()
 {
 	# This string will contain regex for any
 	# files or directories you want to ignore.
-	link_ignore=""
-
-	# Some default ignores.
-	link_ignore="link\.sh $ext_dir \.gitmodules \.gitignore"
+	link_ignore="\.gitmodules \.gitignore"
 
 	# Get script directory
 	script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -19,8 +16,10 @@ function link_dotfiles()
 	if (cd $script_dir && is_submodule)
 	then
 		dotfiles_dir=`dirname $script_dir`
+		link_ignore="$(basename $script_dir) $link_ignore"
 	else
 		dotfiles_dir="$script_dir"
+		link_ignore="link\.sh $ext_dir $link_ignore"
 	fi
 
 	# Now we run any custom extensions.
