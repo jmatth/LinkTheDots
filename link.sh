@@ -92,8 +92,8 @@ function install_post_merge_hook()
 
 function is_submodule() 
 {       
-	(cd "$(git rev-parse --show-toplevel)/.." && 
-	git rev-parse --is-inside-work-tree) | grep -q true
+	(cd "$(git rev-parse --show-toplevel 2> /dev/null)/.." && 
+	git rev-parse --is-inside-work-tree) 2> /dev/null | grep true &> /dev/null
 }
 
 link_dotfiles
