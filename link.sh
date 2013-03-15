@@ -3,6 +3,9 @@
 # This directory will contain any custom extension scripts.
 ext_dir=".link_ext"
 
+# Where to store a list of linked files.
+linked_files_list=$HOME/.ltd_linked_files_list
+
 function link_dotfiles()
 {
 	# This string will contain regex for any
@@ -52,6 +55,12 @@ function link_dotfiles()
 			if [ "$(readlink ~/.$file)" != "$dotfiles_dir/$file" ]
 			then
 				echo $file
+
+				if ! grep "$HOME/\.$file" $linked_files_list &> /dev/null
+				then
+					echo "$HOME/.$file" >> $linked_files_list
+				fi
+
 				if test ! -d `dirname ~/.$file`
 				then
 					mkdir -p `dirname ~/.$file`
@@ -61,6 +70,7 @@ function link_dotfiles()
 					unlink ~/.$file
 				fi
 				rm -rf ~/.$file &> /dev/null
+
 				ln -sf $dotfiles_dir/$file ~/.$file
 			fi
 		fi
