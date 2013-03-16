@@ -83,17 +83,21 @@ function check_ltd_args()
 	do
 		case $arg in
 			"--help") print_help; exit 0;;
-			"--purge") purge_linked_files; exit 0;;
+			"--remove-hook") remove_post_merge_hook; exit 0;;
+			"--remove-links") remove_linked_files; exit 0;;
+			"--remove-all") remove_post_merge_hook; remove_linked_files; exit 0;;
 		esac
 	done
 }
 
 function print_help()
 {
-	echo "Usage: ./link.sh [OPTIONS]"
+	echo "Usage: ./link.sh [OPTION]"
 	echo "OPTIONS"
-	echo "--help:    Print this message and exit."
-	echo "--purge:   Remove all linked files."
+	echo "--help:           Print this message and exit."
+	echo "--remove-links:   Remove all linked files."
+	echo "--remove-hook:    Remove post-merge hook."
+	echo "--remove-all:     Remove post-merge hook and all linked files."
 }
 
 function install_post_merge_hook()
@@ -148,7 +152,7 @@ function remove_dead_links()
 	fi
 }
 
-function purge_linked_files()
+function remove_linked_files()
 {
 	if [ -f $linked_files_list ] && ! [ -z $linked_files_list ]
 	then
@@ -164,6 +168,11 @@ function purge_linked_files()
 
 		rm $linked_files_list
 	fi
+}
+
+function remove_post_merge_hook()
+{
+	rm -f $dotfiles_dir/.git/hooks/post-merge
 }
 
 function is_submodule() 
