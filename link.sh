@@ -110,4 +110,4 @@ function is_submodule()
 	git rev-parse --is-inside-work-tree) 2> /dev/null | grep true &> /dev/null
 }
 
-link_dotfiles
+link_dotfiles $@
