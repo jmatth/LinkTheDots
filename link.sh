@@ -34,9 +34,9 @@ function link_dotfiles()
 		done
 	fi
 
-	# Now symlink and files that git is tracking
+	# Now symlink any files that git is tracking
 	# but that haven't been added to the ignore array.
-	echo -e "\e[1;35mSymlinking dotfiles:\e[m"
+	echo -e "\e[36mSymlinking dotfiles:\e[m"
 	for file in $(cd $dotfiles_dir && git ls-files)
 	do
 		ignoreThis=false
@@ -54,7 +54,7 @@ function link_dotfiles()
 		then
 			if [ "$(readlink ~/.$file)" != "$dotfiles_dir/$file" ]
 			then
-				echo $file
+				echo -e "\e[32m$file\e[m"
 
 				if ! grep "$HOME/\.$file" $linked_files_list &> /dev/null
 				then
@@ -126,13 +126,15 @@ function install_post_merge_hook()
 function remove_dead_links()
 {
 	current_line_number=1
+
+	echo -e "\e[33mRemoving broken links:\e[m"
 	for file in `cat $linked_files_list`
 	do
 		if [ -h $file ]
 		then
 			if ! [ -r $file ]
 			then
-				echo "Removing broken link $file."
+				echo -e "\e[31m$file\e[m"
 				unlink $file
 				sed -i -e $current_line_number"d" $linked_files_list
 			else
@@ -151,16 +153,20 @@ function remove_dead_links()
 
 function purge_linked_files()
 {
-	for file in `cat $linked_files_list`
-	do
-		if [ -h $file ]
-		then
-			echo "Removing link $file."
-			unlink $file
-		fi
-	done
+	if [ -f $linked_files_list ] && ! [ -z $linked_files_list ]
+	then
+		echo -e "\e[33mRemoving all linked files:\e[m"
+		for file in `cat $linked_files_list`
+		do
+			if [ -h $file ]
+			then
+				echo -e "\e[31m$file\e[m"
+				unlink $file
+			fi
+		done
 
-	rm $linked_files_list
+		rm $linked_files_list
+	fi
 }
 
 function is_submodule() 
