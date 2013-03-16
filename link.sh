@@ -75,9 +75,6 @@ function link_dotfiles()
 			fi
 		fi
 	done
-
-	# Last, we install a post-merge hook to keep everything up to date.
-	install_post_merge_hook
 }
 
 function check_ltd_args()
@@ -103,7 +100,7 @@ function install_post_merge_hook()
 {
 	if ! [ -f $dotfiles_dir/.git/hooks/post-merge ]
 	then
-		echo "Installing post merge hook"
+		echo "\e[36mInstalling post merge hook.\e[m"
 		hook="$dotfiles_dir/.git/hooks/post-merge"
 		echo "#!/usr/bin/env bash" > $hook
 		echo "(cd $dotfiles_dir && git submodule update --init --recursive)" \
@@ -111,14 +108,14 @@ function install_post_merge_hook()
 
 		# if this script was run with any arguments then we want
 		# to keep them when it's run by the hook.
-		echo "$script_dir/link.sh $*" >> $hook
+		echo "$script_dir/link.sh $@" >> $hook
 
 		# Make it executable
 		chmod 755 $hook
 
 		# This seems to be the first run, so we'll go ahead
 		# and initialize the submodules.
-		echo "Assuming submodules are empty, initializing now"
+		echo -e "\e[36mAssuming submodules are empty, initializing now:\e[m"
 		(cd $dotfiles_dir && git submodule update --init --recursive)
 	fi
 }
@@ -177,4 +174,5 @@ function is_submodule()
 
 check_ltd_args $@
 link_dotfiles $@
+install_post_merge_hook $@
 remove_dead_links $@
