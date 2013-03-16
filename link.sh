@@ -134,12 +134,12 @@ function remove_dead_links()
 			then
 				echo "Removing broken link $file."
 				unlink $file
-				sed -i -e "$current_line_number\d" $linked_files_list
+				sed -i -e $current_line_number"d" $linked_files_list
 			else
 				current_line_number=$(($current_line_number+1))
 			fi
 		else
-			sed -i -e "$current_line_number\d" $linked_files_list
+			sed -i -e $current_line_number"d" $linked_files_list
 		fi
 	done
 
