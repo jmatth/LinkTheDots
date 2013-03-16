@@ -85,7 +85,8 @@ function check_ltd_args()
 	for arg in $@
 	do
 		case $arg in
-			"--help") print_help && exit 0;;
+			"--help") print_help; exit 0;;
+			"--purge") purge_linked_files; exit 0;;
 		esac
 	done
 }
@@ -95,6 +96,7 @@ function print_help()
 	echo "Usage: ./link.sh [OPTIONS]"
 	echo "OPTIONS"
 	echo "--help:    Print this message and exit."
+	echo "--purge:   Remove all linked files."
 }
 
 function install_post_merge_hook()
@@ -145,6 +147,20 @@ function remove_dead_links()
 	then
 		rm $linked_files_list
 	fi
+}
+
+function purge_linked_files()
+{
+	for file in `cat $linked_files_list`
+	do
+		if [ -h $file ]
+		then
+			echo "Removing link $file."
+			unlink $file
+		fi
+	done
+
+	rm $linked_files_list
 }
 
 function is_submodule() 
