@@ -100,7 +100,7 @@ function install_post_merge_hook()
 {
 	if ! [ -f $dotfiles_dir/.git/hooks/post-merge ]
 	then
-		echo "\e[36mInstalling post merge hook.\e[m"
+		echo -e "\e[36mInstalling post merge hook.\e[m"
 		hook="$dotfiles_dir/.git/hooks/post-merge"
 		echo "#!/usr/bin/env bash" > $hook
 		echo "(cd $dotfiles_dir && git submodule update --init --recursive)" \
