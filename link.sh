@@ -80,6 +80,23 @@ function link_dotfiles()
 	install_post_merge_hook
 }
 
+function check_ltd_args()
+{
+	for arg in $@
+	do
+		case $arg in
+			"--help") print_help && exit 0;;
+		esac
+	done
+}
+
+function print_help()
+{
+	echo "Usage: ./link.sh [OPTIONS]"
+	echo "OPTIONS"
+	echo "--help:    Print this message and exit."
+}
+
 function install_post_merge_hook()
 {
 	if ! [ -f $dotfiles_dir/.git/hooks/post-merge ]
@@ -110,4 +127,5 @@ function is_submodule()
 	git rev-parse --is-inside-work-tree) 2> /dev/null | grep true &> /dev/null
 }
 
+check_ltd_args $@
 link_dotfiles $@
