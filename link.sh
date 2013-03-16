@@ -121,6 +121,32 @@ function install_post_merge_hook()
 	fi
 }
 
+function remove_dead_links()
+{
+	current_line_number=1
+	for file in `cat $linked_files_list`
+	do
+		if [ -h $file ]
+		then
+			if ! [ -r $file ]
+			then
+				echo "Removing broken link $file."
+				unlink $file
+				sed -i -e "$current_line_number\d" $linked_files_list
+			else
+				current_line_number=$(($current_line_number+1))
+			fi
+		else
+			sed -i -e "$current_line_number\d" $linked_files_list
+		fi
+	done
+
+	if ! [ -s $linked_files_list ]
+	then
+		rm $linked_files_list
+	fi
+}
+
 function is_submodule() 
 {       
 	(cd "$(git rev-parse --show-toplevel 2> /dev/null)/.." && 
@@ -129,3 +155,4 @@ function is_submodule()
 
 check_ltd_args $@
 link_dotfiles $@
+remove_dead_links $@
