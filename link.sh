@@ -6,6 +6,10 @@ ext_dir=".link_ext"
 # Where to store a list of linked files.
 linked_files_list=$HOME/.ltd_linked_files_list
 
+# Variables used to check specified args.
+remove_hook=false
+remove_links=false
+
 function link_dotfiles()
 {
 	# This string will contain regex for any
@@ -83,21 +87,31 @@ function check_ltd_args()
 	do
 		case $arg in
 			"--help") print_help; exit 0;;
-			"--remove-hook") remove_post_merge_hook; exit 0;;
-			"--remove-links") remove_linked_files; exit 0;;
-			"--remove-all") remove_post_merge_hook; remove_linked_files; exit 0;;
+			"--remove-hook") remove_hook=true;;
+			"--remove-links") remove_links=true;;
 		esac
 	done
+
+	if [[ "$remove_hook" == "true" && "$remove_links" == "true" ]]; then
+		remove_post_merge_hook
+		remove_linked_files
+		exit 0
+	elif [[ "$remove_hook" == "true" ]]; then
+		remove_post_merge_hook
+		exit 0
+	elif [[ "$remove_links" == "true" ]]; then
+		remove_linked_files
+		exit 0
+	fi
 }
 
 function print_help()
 {
-	echo "Usage: ./link.sh [OPTION]"
+	echo "Usage: ./link.sh [OPTIONS]"
 	echo "OPTIONS"
 	echo "--help:           Print this message and exit."
 	echo "--remove-links:   Remove all linked files."
 	echo "--remove-hook:    Remove post-merge hook."
-	echo "--remove-all:     Remove post-merge hook and all linked files."
 }
 
 function install_post_merge_hook()
