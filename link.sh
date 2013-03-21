@@ -7,6 +7,8 @@
 # to avoid confusion with otherwise similarly named functions.
 option_install_hook=true
 option_run_extensions=true
+option_link_files=true
+option_copy_files=true
 option_remove_hook=false
 option_remove_links=false
 option_remove_copies=false
@@ -90,6 +92,8 @@ function check_ltd_args()
 			"--help") print_help; exit 0;;
 			"--skip-hook") option_install_hook=false;;
 			"--skip-extensions") option_run_extensions=false;;
+			"--skip-link") option_link_files=false;;
+			"--skip-copy") option_copy_files=false;;
 			"--remove-hook") option_remove_hook=true;;
 			"--remove-links") option_remove_links=true;;
 			"--remove-copies") option_remove_copies=true;;
@@ -106,6 +110,8 @@ function print_help()
 	echo "--help:              Print this message and exit."
 	echo "--skip-hook:         Don't install post-merge hook."
 	echo "--skip-extensions:   Don't run extension scripts."
+	echo "--skip-link:         Don't link files in link/."
+	echo "--skip-copy:         Don't copy files in copy/."
 	echo "--remove-hook:       Remove post-merge hook."
 	echo "--remove-links:      Remove all linked files."
 	echo "--remove-copies:     Remove all copied files."
@@ -259,9 +265,15 @@ then
 	run_extension_scripts $@
 fi
 
-link_dotfiles
+if [[ "$option_link_files" == "true" ]]
+then
+	link_dotfiles
+fi
 
-copy_dotfiles
+if [[ "$option_copy_files" == "true" ]]
+then
+	copy_dotfiles
+fi
 
 # Unless told otherwise, we install a post merge hook here.
 if [[ "$option_install_hook" == "true" ]]
