@@ -3,9 +3,6 @@
 #--------------------------------------------------------------------------
 # Here we declare some settings variables
 #--------------------------------------------------------------------------
-# This directory will contain any custom extension scripts.
-ext_dir="link_ext"
-
 # Variables used to check specified args. Prefixed with "option"
 # to avoid confusion with otherwise similarly named functions.
 option_install_hook=true
@@ -112,11 +109,11 @@ function print_help()
 function run_extension_scripts()
 {
 	# Now we run any custom extensions.
-	if test -d $script_dir/$ext_dir
+	if test -d $script_dir/source
 	then
-		for extension in $(ls $script_dir/$ext_dir)
+		for extension in $(ls $script_dir/source)
 		do
-			source $script_dir/$ext_dir/$extension
+			source $script_dir/source/$extension
 		done
 	fi
 }
@@ -221,10 +218,8 @@ script_dir="$( cd "$( dirname "$0" )" && pwd )"
 if (cd $script_dir && is_submodule)
 then
 	dotfiles_dir=`dirname $script_dir`
-	link_ignore="$(basename $script_dir) $link_ignore"
 else
 	dotfiles_dir="$script_dir"
-	link_ignore="link\.sh $ext_dir $link_ignore"
 fi
 
 check_ltd_args $@
