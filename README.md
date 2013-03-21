@@ -5,7 +5,9 @@ Easily keep your git-managed dotfiles linked to your home directory with this
 simple bash script.
 
 Prerequisite
------------- This script assumes you have a dotfiles repository that mimics the layout of your home directory without the leading `.`.  So say for example you want
+------------
+This script assumes you have a dotfiles repository that mimics the layout of
+your home directory without the leading `.`.  So say for example you want
 `~/.bashrc`, `~/.vimrc`, and `~/.vim/colors/inkpot.vim` to be managed by git.
 Then your dotfiles directory should look like:
 <pre>
@@ -15,8 +17,8 @@ dotfiles/
   vim/colors/inkpot.vim
 </pre>
 
-This layout has the advantages of being easily linked by a script, while still
-having all the files visible without having to resort to `ls -a`.
+This way it's easy to tell where everything is going to go, and you don't have
+to use `ls -a` to see your files inside the repo.
 
 Installation
 ------------
@@ -32,6 +34,11 @@ This will add the repository as a submodule into your dotfiles repo. Now to
 check for updates, navigate into the submodule directory and run `git pull`. If
 there are any new updates then they'll get pulled down. Then you can navigate
 back to the root of your dotfiles, commit the changes, and push back to github.
+
+**NOTE**: If you plan on adding custom extensions (see bellow) or just hacking
+at the script, I would HIGHLY recommend forking this repository first, and then
+adding your fork as a submodule instead. That way you can commit and push any
+changes you make.
 
 ###By Committing Directly
 
@@ -82,10 +89,12 @@ something special with? Easy, just write a simple script that:
 
 2. Performs whatever special checks and actions you require.
 
-Create a directory in the root of your dotfiles repo called `.link_ext` and
-place/commit your script there. Then the next time you run `./link.sh` your
-script will be executed before any linking takes place, and any files matching
-the patterns you have added to `link_ignore` will be...well, ignored. 
+If you installed LTD by committing it directly to your dotfiles, create a
+directory in the root of your repo called `link_ext`. If you installed via a
+submodule, then this directory should already exist there. Place/commit your
+script there. Then the next time you run `./link.sh` your script will be
+executed before any linking takes place, and any files matching the patterns you
+have added to `link_ignore` will be...well, ignored. 
 
 Also, please keep in mind that files are ignored based on
 [regular expressions](http://en.wikipedia.org/wiki/Regular_expression). So if
@@ -93,4 +102,4 @@ you have two files called `myfile` and `myfile2`, and you append `"myfile"` to t
 `link_ignore` string, then both files will be ignored. If you wanted to ignore
 just the first file, you would have to append `"^myfile$"` to `link_ignore`.
 
-For a simple example, look at the included `99-example` file in `.link_ext`.
+For a simple example, look at the included `99-example` file in `link_ext`.
