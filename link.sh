@@ -49,7 +49,7 @@ function link_dotfiles()
 			fi
 
 			# Actually do the linking.
-			ln -sf $dotfiles_dir/$file ~/.$file
+			ln -sf $dotfiles_dir/link/$file ~/.$file
 		fi
 	done
 }
