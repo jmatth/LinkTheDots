@@ -4,7 +4,7 @@
 # Here we declare some settings variables
 #--------------------------------------------------------------------------
 # This directory will contain any custom extension scripts.
-ext_dir=".link_ext"
+ext_dir="link_ext"
 
 # Variables used to check specified args. Prefixed with "option"
 # to avoid confusion with otherwise similarly named functions.
