@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#--------------------------------------------------------------------------
+# Here we declare some settings variables
+#--------------------------------------------------------------------------
 # This directory will contain any custom extension scripts.
 ext_dir=".link_ext"
 
@@ -17,6 +20,9 @@ linked_files_list=$HOME/.ltd_linked_files_list
 # files or directories you want to ignore.
 link_ignore="\.gitmodules \.gitignore"
 
+#--------------------------------------------------------------------------
+# Now declare our functions
+#--------------------------------------------------------------------------
 function link_dotfiles()
 {
 
@@ -181,7 +187,10 @@ function is_submodule()
 	git rev-parse --is-inside-work-tree) 2> /dev/null | grep true &> /dev/null
 }
 
-# FIXME: this is here and not in a fucntion so that script_dir and dotfiles_dir
+#--------------------------------------------------------------------------
+# Start executing the functions
+#--------------------------------------------------------------------------
+# FIXME: this is here and not in a function so that script_dir and dotfiles_dir
 # will be global in the script. Is there a better way to get them into the
 # global scope without exporting?
 # Get script directory
