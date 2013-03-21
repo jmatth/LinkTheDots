@@ -6,9 +6,10 @@ ext_dir=".link_ext"
 # Where to store a list of linked files.
 linked_files_list=$HOME/.ltd_linked_files_list
 
-# Variables used to check specified args.
-remove_hook=false
-remove_links=false
+# Variables used to check specified args. Prefixed with "option"
+# to avoid confusion with otherwise similarly named functions.
+option_remove_hook=false
+option_remove_links=false
 
 function link_dotfiles()
 {
@@ -87,15 +88,15 @@ function check_ltd_args()
 	do
 		case $arg in
 			"--help") print_help; exit 0;;
-			"--remove-hook") remove_hook=true;;
-			"--remove-links") remove_links=true;;
+			"--remove-hook") option_remove_hook=true;;
+			"--remove-links") option_remove_links=true;;
 		esac
 	done
 
-	if [[ "$remove_hook" == "true" ]]
+	if [[ "$option_remove_hook" == "true" ]]
 	then
 		remove_post_merge_hook
-	elif [[ "$remove_links" == "true" ]]
+	elif [[ "$option_remove_links" == "true" ]]
 	then
 		remove_linked_files
 	fi
