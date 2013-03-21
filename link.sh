@@ -6,6 +6,7 @@ ext_dir=".link_ext"
 # Variables used to check specified args. Prefixed with "option"
 # to avoid confusion with otherwise similarly named functions.
 option_install_hook=true
+option_run_extensions=true
 option_remove_hook=false
 option_remove_links=false
 
@@ -85,10 +86,22 @@ function check_ltd_args()
 		case $arg in
 			"--help") print_help; exit 0;;
 			"--skip-hook") option_install_hook=false;;
+			"--skip-extensions") option_run_extensions=false;;
 			"--remove-hook") option_remove_hook=true;;
 			"--remove-links") option_remove_links=true;;
 		esac
 	done
+}
+
+function print_help()
+{
+	echo "Usage: ./link.sh [OPTIONS]"
+	echo "OPTIONS"
+	echo "--help:              Print this message and exit."
+	echo "--skip-hook:         Don't install post-merge hook."
+	echo "--skip-extensions:   Don't run extension scripts."
+	echo "--remove-links:      Remove all linked files."
+	echo "--remove-hook:       Remove post-merge hook."
 }
 
 function run_extension_scripts()
@@ -101,15 +114,6 @@ function run_extension_scripts()
 			source $script_dir/$ext_dir/$extension
 		done
 	fi
-}
-
-function print_help()
-{
-	echo "Usage: ./link.sh [OPTIONS]"
-	echo "OPTIONS"
-	echo "--help:           Print this message and exit."
-	echo "--remove-links:   Remove all linked files."
-	echo "--remove-hook:    Remove post-merge hook."
 }
 
 function install_post_merge_hook()
@@ -197,7 +201,7 @@ check_ltd_args $@
 
 # If we're removing anything then do that and exit.
 # FIXME: is there a better way to handle this?
-if [[ "$option_remove_hook" == "true" || "$option_remove_links" == "true"]]
+if [[ "$option_remove_hook" == "true" || "$option_remove_links" == "true" ]]
 then
 	if [[ "$option_remove_hook" == "true" ]]
 	then
@@ -209,7 +213,10 @@ then
 	exit 0
 fi
 
-run_extension_scripts $@
+if [[ "$run_extension_scripts" == "true" ]]
+then
+	run_extension_scripts $@
+fi
 
 link_dotfiles $@
 
