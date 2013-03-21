@@ -8,6 +8,7 @@ linked_files_list=$HOME/.ltd_linked_files_list
 
 # Variables used to check specified args. Prefixed with "option"
 # to avoid confusion with otherwise similarly named functions.
+option_install_hook=true
 option_remove_hook=false
 option_remove_links=false
 
@@ -88,18 +89,11 @@ function check_ltd_args()
 	do
 		case $arg in
 			"--help") print_help; exit 0;;
+			"--skip-hook") option_install_hook=false;;
 			"--remove-hook") option_remove_hook=true;;
 			"--remove-links") option_remove_links=true;;
 		esac
 	done
-
-	if [[ "$option_remove_hook" == "true" ]]
-	then
-		remove_post_merge_hook
-	elif [[ "$option_remove_links" == "true" ]]
-	then
-		remove_linked_files
-	fi
 }
 
 function print_help()
@@ -193,6 +187,27 @@ function is_submodule()
 }
 
 check_ltd_args $@
+
+# If we're removing anything then do that and exit.
+# FIXME: is there a better way to handle this?
+if [[ "$option_remove_hook" == "true" || "$option_remove_links" == "true"]]
+then
+	if [[ "$option_remove_hook" == "true" ]]
+	then
+		remove_post_merge_hook
+	elif [[ "$option_remove_links" == "true" ]]
+	then
+		remove_linked_files
+	fi
+	exit 0
+fi
+
 link_dotfiles $@
-install_post_merge_hook $@
-remove_dead_links $@
+
+# Unless told otherwise, we install a post merge hook here.
+if [[ "$option_install_hook" == "true" ]]
+then
+	install_post_merge_hook $@
+fi
+
+remove_dead_links
