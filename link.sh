@@ -246,7 +246,7 @@ then
 	fi
 	if [[ "$option_remove_copies" == "true" ]]
 	then
-		remove_copied_files "copied"
+		remove_dotfiles "copied"
 	fi
 	exit 0
 fi
