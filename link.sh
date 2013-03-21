@@ -109,11 +109,11 @@ function print_help()
 function run_extension_scripts()
 {
 	# Now we run any custom extensions.
-	if test -d $script_dir/source
+	if test -d $dotfiles_dir/source
 	then
-		for extension in $(ls $script_dir/source)
+		for extension in $(ls $dotfiles_dir/source)
 		do
-			source $script_dir/source/$extension
+			source $dotfiles_dir/source/$extension
 		done
 	fi
 }
