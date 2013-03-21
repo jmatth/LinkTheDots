@@ -60,7 +60,7 @@ function link_dotfiles()
 				fi
 
 				# If a file with that name already exists, back it up.
-				if test -h ~/.$file || test -f ~/.$file
+				if test -e ~/.$file
 				then
 					mv ~/.$file ~/.$file.ltd.bak
 				fi
@@ -100,7 +100,7 @@ function print_help()
 function run_extension_scripts()
 {
 	# Now we run any custom extensions.
-	if [ -d $script_dir/$ext_dir ]
+	if test -d $script_dir/$ext_dir
 	then
 		for extension in $(ls $script_dir/$ext_dir)
 		do
@@ -111,7 +111,7 @@ function run_extension_scripts()
 
 function install_post_merge_hook()
 {
-	if ! [ -f $dotfiles_dir/.git/hooks/post-merge ]
+	if test ! -f $dotfiles_dir/.git/hooks/post-merge
 	then
 		echo -e "\e[36mInstalling post merge hook.\e[m"
 		hook="$dotfiles_dir/.git/hooks/post-merge"
@@ -140,9 +140,9 @@ function remove_dead_links()
 	echo -e "\e[33mRemoving broken links:\e[m"
 	for file in `cat $linked_files_list`
 	do
-		if [ -h $file ]
+		if test -h $file
 		then
-			if ! [ -r $file ]
+			if test ! -r $file
 			then
 				echo -e "\e[31m$file\e[m"
 				unlink $file
@@ -155,7 +155,7 @@ function remove_dead_links()
 		fi
 	done
 
-	if ! [ -s $linked_files_list ]
+	if test ! -s $linked_files_list
 	then
 		rm $linked_files_list
 	fi
@@ -163,20 +163,25 @@ function remove_dead_links()
 
 function remove_linked_files()
 {
-	if [ -f $linked_files_list ] && ! [ -z $linked_files_list ]
+	if test -s $linked_files_list
 	then
 		echo -e "\e[33mRemoving all linked files:\e[m"
 		for file in `cat $linked_files_list`
 		do
-			if [ -h $file ]
+			if test -h $file
 			then
 				echo -e "\e[31m$file\e[m"
 				unlink $file
+
+				# Restore backup file if it exists.
+				if test -e $file.ltd.bak
+				then
+					mv $file.ltd.bak $file
+				fi
 			fi
 		done
-
-		rm $linked_files_list
 	fi
+	rm $linked_files_list
 }
 
 function remove_post_merge_hook()
