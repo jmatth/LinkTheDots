@@ -239,7 +239,7 @@ then
 	exit 0
 fi
 
-if [[ "$run_extension_scripts" == "true" ]]
+if [[ "$option_run_extensions" == "true" ]]
 then
 	run_extension_scripts $@
 fi
