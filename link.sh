@@ -3,42 +3,37 @@
 # This directory will contain any custom extension scripts.
 ext_dir=".link_ext"
 
-# Where to store a list of linked files.
-linked_files_list=$HOME/.ltd_linked_files_list
-
 # Variables used to check specified args. Prefixed with "option"
 # to avoid confusion with otherwise similarly named functions.
 option_install_hook=true
 option_remove_hook=false
 option_remove_links=false
 
+# Where to store a list of linked files.
+linked_files_list=$HOME/.ltd_linked_files_list
+
+# This string will contain regex for any
+# files or directories you want to ignore.
+link_ignore="\.gitmodules \.gitignore"
+
+# FIXME: this is here and not in a fucntion so that script_dir and dotfiles_dir
+# will be global in the script. Is there a better way to get them into the
+# global scope without exporting?
+# Get script directory
+script_dir="$( cd "$( dirname "$0" )" && pwd )"
+
+#Check if we're in a submodule and set directories accordingly.
+if (cd $script_dir && is_submodule)
+then
+	dotfiles_dir=`dirname $script_dir`
+	link_ignore="$(basename $script_dir) $link_ignore"
+else
+	dotfiles_dir="$script_dir"
+	link_ignore="link\.sh $ext_dir $link_ignore"
+fi
+
 function link_dotfiles()
 {
-	# This string will contain regex for any
-	# files or directories you want to ignore.
-	link_ignore="\.gitmodules \.gitignore"
-
-	# Get script directory
-	script_dir="$( cd "$( dirname "$0" )" && pwd )"
-
-	#Check if we're in a submodule and set directories accordingly.
-	if (cd $script_dir && is_submodule)
-	then
-		dotfiles_dir=`dirname $script_dir`
-		link_ignore="$(basename $script_dir) $link_ignore"
-	else
-		dotfiles_dir="$script_dir"
-		link_ignore="link\.sh $ext_dir $link_ignore"
-	fi
-
-	# Now we run any custom extensions.
-	if [ -d $script_dir/$ext_dir ]
-	then
-		for extension in $(ls $script_dir/$ext_dir)
-		do
-			source $script_dir/$ext_dir/$extension
-		done
-	fi
 
 	# Now symlink any files that git is tracking
 	# but that haven't been added to the ignore array.
@@ -94,6 +89,18 @@ function check_ltd_args()
 			"--remove-links") option_remove_links=true;;
 		esac
 	done
+}
+
+function run_extension_scripts()
+{
+	# Now we run any custom extensions.
+	if [ -d $script_dir/$ext_dir ]
+	then
+		for extension in $(ls $script_dir/$ext_dir)
+		do
+			source $script_dir/$ext_dir/$extension
+		done
+	fi
 }
 
 function print_help()
@@ -201,6 +208,8 @@ then
 	fi
 	exit 0
 fi
+
+run_extension_scripts $@
 
 link_dotfiles $@
 
