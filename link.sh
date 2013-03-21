@@ -92,16 +92,12 @@ function check_ltd_args()
 		esac
 	done
 
-	if [[ "$remove_hook" == "true" && "$remove_links" == "true" ]]; then
+	if [[ "$remove_hook" == "true" ]]
+	then
 		remove_post_merge_hook
+	elif [[ "$remove_links" == "true" ]]
+	then
 		remove_linked_files
-		exit 0
-	elif [[ "$remove_hook" == "true" ]]; then
-		remove_post_merge_hook
-		exit 0
-	elif [[ "$remove_links" == "true" ]]; then
-		remove_linked_files
-		exit 0
 	fi
 }
 
