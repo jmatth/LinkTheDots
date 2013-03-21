@@ -17,22 +17,6 @@ linked_files_list=$HOME/.ltd_linked_files_list
 # files or directories you want to ignore.
 link_ignore="\.gitmodules \.gitignore"
 
-# FIXME: this is here and not in a fucntion so that script_dir and dotfiles_dir
-# will be global in the script. Is there a better way to get them into the
-# global scope without exporting?
-# Get script directory
-script_dir="$( cd "$( dirname "$0" )" && pwd )"
-
-#Check if we're in a submodule and set directories accordingly.
-if (cd $script_dir && is_submodule)
-then
-	dotfiles_dir=`dirname $script_dir`
-	link_ignore="$(basename $script_dir) $link_ignore"
-else
-	dotfiles_dir="$script_dir"
-	link_ignore="link\.sh $ext_dir $link_ignore"
-fi
-
 function link_dotfiles()
 {
 
@@ -196,6 +180,22 @@ function is_submodule()
 	(cd "$(git rev-parse --show-toplevel 2> /dev/null)/.." && 
 	git rev-parse --is-inside-work-tree) 2> /dev/null | grep true &> /dev/null
 }
+
+# FIXME: this is here and not in a fucntion so that script_dir and dotfiles_dir
+# will be global in the script. Is there a better way to get them into the
+# global scope without exporting?
+# Get script directory
+script_dir="$( cd "$( dirname "$0" )" && pwd )"
+
+#Check if we're in a submodule and set directories accordingly.
+if (cd $script_dir && is_submodule)
+then
+	dotfiles_dir=`dirname $script_dir`
+	link_ignore="$(basename $script_dir) $link_ignore"
+else
+	dotfiles_dir="$script_dir"
+	link_ignore="link\.sh $ext_dir $link_ignore"
+fi
 
 check_ltd_args $@
 
