@@ -17,7 +17,7 @@ function link_dotfiles()
 	link_ignore="\.gitmodules \.gitignore"
 
 	# Get script directory
-	script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+	script_dir="$( cd "$( dirname "$0" )" && pwd )"
 
 	#Check if we're in a submodule and set directories accordingly.
 	if (cd $script_dir && is_submodule)
