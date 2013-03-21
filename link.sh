@@ -104,8 +104,9 @@ function print_help()
 	echo "--help:              Print this message and exit."
 	echo "--skip-hook:         Don't install post-merge hook."
 	echo "--skip-extensions:   Don't run extension scripts."
-	echo "--remove-links:      Remove all linked files."
 	echo "--remove-hook:       Remove post-merge hook."
+	echo "--remove-links:      Remove all linked files."
+	echo "--remove-copies:     Remove all copied files."
 }
 
 function run_extension_scripts()
