@@ -9,6 +9,7 @@ option_install_hook=true
 option_run_extensions=true
 option_remove_hook=false
 option_remove_links=false
+option_remove_copies=false
 
 # Where to store a list of linked files.
 linked_files_list=$HOME/.dotfiles_linked
@@ -91,6 +92,7 @@ function check_ltd_args()
 			"--skip-extensions") option_run_extensions=false;;
 			"--remove-hook") option_remove_hook=true;;
 			"--remove-links") option_remove_links=true;;
+			"--remove-copies") option_remove_copies=true;;
 		esac
 	done
 }
@@ -170,27 +172,31 @@ function remove_dead_links()
 	fi
 }
 
-function remove_linked_files()
+function remove_dotfiles()
 {
-	if test -s $linked_files_list
+	if [[ "$1" == "copied" ]]
 	then
-		echo -e "\e[33mRemoving all linked files:\e[m"
-		for file in `cat $linked_files_list`
-		do
-			if test -h $file
-			then
-				echo -e "\e[31m$file\e[m"
-				unlink $file
+		list_file=$copied_files_list
+	else
+		list_file=$linked_files_list
+	fi
 
-				# Restore backup file if it exists.
-				if test -e $file.dotfiles.bak
-				then
-					mv $file.dotfiles.bak $file
-				fi
+	if test -s $list_file
+	then
+		echo -e "\e[33mRemoving all $1 files:\e[m"
+		for file in `cat $list_file`
+		do
+			echo -e "\e[31m$file\e[m"
+			unlink $file
+
+			# Restore backup file if it exists.
+			if test -e $file.dotfiles.bak
+			then
+				mv $file.dotfiles.bak $file
 			fi
 		done
 	fi
-	rm $linked_files_list
+	rm $list_file
 }
 
 function remove_post_merge_hook()
@@ -226,7 +232,8 @@ check_ltd_args $@
 
 # If we're removing anything then do that and exit.
 # FIXME: is there a better way to handle this?
-if [[ "$option_remove_hook" == "true" || "$option_remove_links" == "true" ]]
+if [[ "$option_remove_hook" == "true" || "$option_remove_links" == "true" || \
+	  "$option_remove_copies" == "true" ]]
 then
 	if [[ "$option_remove_hook" == "true" ]]
 	then
@@ -234,7 +241,11 @@ then
 	fi
 	if [[ "$option_remove_links" == "true" ]]
 	then
-		remove_linked_files
+		remove_dotfiles "linked"
+	fi
+	if [[ "$option_remove_copies" == "true" ]]
+	then
+		remove_copied_files "copied"
 	fi
 	exit 0
 fi
