@@ -199,8 +199,8 @@ function remove_dotfiles()
 				mv $file.dotfiles.bak $file
 			fi
 		done
+		rm $list_file
 	fi
-	rm $list_file
 }
 
 function remove_post_merge_hook()
