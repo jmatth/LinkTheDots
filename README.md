@@ -5,14 +5,11 @@ Easily keep your git-managed dotfiles linked to your home directory with this
 simple bash script.
 
 Prerequisite
-------------
-This script assumes you have a dotfiles repository that mimics the layout of
-your home directory without the leading `.`.  So say for example you want
+------------ This script assumes you have a dotfiles repository that mimics the layout of your home directory without the leading `.`.  So say for example you want
 `~/.bashrc`, `~/.vimrc`, and `~/.vim/colors/inkpot.vim` to be managed by git.
 Then your dotfiles directory should look like:
 <pre>
 dotfiles/
-  link.sh
   bashrc
   vimrc
   vim/colors/inkpot.vim
@@ -24,10 +21,56 @@ having all the files visible without having to resort to `ls -a`.
 Installation
 ------------
 
-Simply add and commit `link.sh` to your dotfiles git repo. Then run ./link.sh
-inside the repo once on each machine you clone the repo to. The script will
-install a post-merge hook to keep all symlinks and submodules up to date
-whenever you pull new changes.
+###By Submodule (Recommended)
+
+To add this project as a submodule, navigate to the root of your dotfiles repo
+and enter:
+```bash
+git submodule add git://github.com/jmatth/LinkTheDots.git .ltd
+```
+This will add the repository as a submodule into your dotfiles repo. Now to
+check for updates, navigate into the submodule directory and run `git pull`. If
+there are any new updates then they'll get pulled down. Then you can navigate
+back to the root of your dotfiles, commit the changes, and push back to github.
+
+###By Committing Directly
+
+If submodules aren't your style, you can just add the script directly to your
+dotfiles repo and it will still work. Unfortunately, to get any future updates
+you'll have to manually check this repo for new commits. To add this script
+directly, just download it into the root of your dotfiles repo, possibly with:
+```bash
+wget http://raw.github.com/jmatth/LinkTheDots/master/link.sh
+```
+Then add and commit the script as you would any other file. It will
+automatically detect that it's not in a submodule and adjust its settings
+accordingly, and ignore itself by default.
+
+Usage
+-----
+
+###Basic Linking
+Once you have LinkTheDots installed in your dotfiles repo, using it to create
+links is simple: `./.ltd/link.sh` or `./link.sh`, depending on where you
+installed it. Running the script without any arguments will make it search
+through your dotfiles and create corresponding links in your home directory.
+After it's done creating the links it will also create a post-merge hook in your
+local repo, so that whenever you pull down new updates the script will get rerun
+and automatically link the new files for you.
+
+###Additional Options
+Besides the main functionality, LTD has a few other built in options for you to
+use. I've described them below, but you can always access a list of them by
+running the script with `--help` as an argument.
+
+| Option              | Meaning                                             |
+| ------------------- | --------------------------------------------------- |
+| `--help`            | Display help text and exit.                         |
+| `--skip-hook`       | Don't install a post-merge hook.                    |
+| `--skip-extensions` | Don't execute extension scripts (see next section). |
+| `--remove-links`    | Remove any links created by LTD.                    |
+| `--remove-hook`     | Remove the post-merge hook installed by LTD.        |
+
 
 Extending
 ---------
