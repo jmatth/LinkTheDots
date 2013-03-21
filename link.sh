@@ -181,6 +181,7 @@ function remove_linked_files()
 
 function remove_post_merge_hook()
 {
+	echo -e "\e[33mRemoving post-merge hook.\e[m"
 	rm -f $dotfiles_dir/.git/hooks/post-merge
 }
 
@@ -218,7 +219,8 @@ then
 	if [[ "$option_remove_hook" == "true" ]]
 	then
 		remove_post_merge_hook
-	elif [[ "$option_remove_links" == "true" ]]
+	fi
+	if [[ "$option_remove_links" == "true" ]]
 	then
 		remove_linked_files
 	fi
