@@ -53,16 +53,19 @@ function link_dotfiles()
 					echo "$HOME/.$file" >> $linked_files_list
 				fi
 
+				# Create parent directories if they don't exist.
 				if test ! -d `dirname ~/.$file`
 				then
 					mkdir -p `dirname ~/.$file`
 				fi
-				if test -h ~/.$file
-				then
-					unlink ~/.$file
-				fi
-				rm -rf ~/.$file &> /dev/null
 
+				# If a file with that name already exists, back it up.
+				if test -h ~/.$file || test -f ~/.$file
+				then
+					mv ~/.$file ~/.$file.ltd.bak
+				fi
+
+				# Actually do the linking.
 				ln -sf $dotfiles_dir/$file ~/.$file
 			fi
 		fi
