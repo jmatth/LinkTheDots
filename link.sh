@@ -93,6 +93,8 @@ function check_ltd_args()
 			"--remove-hook") option_remove_hook=true;;
 			"--remove-links") option_remove_links=true;;
 			"--remove-copies") option_remove_copies=true;;
+			"--remove-all") option_remove_hook=true; \
+				option_remove_links=true; option_remove_copies=true;;
 		esac
 	done
 }
@@ -107,6 +109,7 @@ function print_help()
 	echo "--remove-hook:       Remove post-merge hook."
 	echo "--remove-links:      Remove all linked files."
 	echo "--remove-copies:     Remove all copied files."
+	echo "--remove-all:        Remove copied and linked files, and hook."
 }
 
 function run_extension_scripts()
@@ -234,7 +237,7 @@ check_ltd_args $@
 # If we're removing anything then do that and exit.
 # FIXME: is there a better way to handle this?
 if [[ "$option_remove_hook" == "true" || "$option_remove_links" == "true" || \
-	  "$option_remove_copies" == "true" ]]
+	"$option_remove_copies" == "true" ]]
 then
 	if [[ "$option_remove_hook" == "true" ]]
 	then
