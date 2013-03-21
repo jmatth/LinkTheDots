@@ -27,7 +27,7 @@ function link_dotfiles()
 	echo -e "\e[36mSymlinking dotfiles:\e[m"
 	for file in $(cd $dotfiles_dir/link && git ls-files)
 	do
-		if [ "$(readlink ~/.$file)" != "$dotfiles_dir/$file" ]
+		if [ "$(readlink ~/.$file)" != "$dotfiles_dir/link/$file" ]
 		then
 			echo -e "\e[32m$file\e[m"
 
