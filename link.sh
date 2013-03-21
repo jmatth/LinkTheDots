@@ -14,60 +14,72 @@ option_remove_hook=false
 option_remove_links=false
 
 # Where to store a list of linked files.
-linked_files_list=$HOME/.ltd_linked_files_list
-
-# This string will contain regex for any
-# files or directories you want to ignore.
-link_ignore="\.gitmodules \.gitignore"
+linked_files_list=$HOME/.dotfiles_linked
+copied_files_list=$HOME/.dotfiles_copied
 
 #--------------------------------------------------------------------------
 # Now declare our functions
 #--------------------------------------------------------------------------
 function link_dotfiles()
 {
-
 	# Now symlink any files that git is tracking
 	# but that haven't been added to the ignore array.
 	echo -e "\e[36mSymlinking dotfiles:\e[m"
-	for file in $(cd $dotfiles_dir && git ls-files)
+	for file in $(cd $dotfiles_dir/link && git ls-files)
 	do
-		ignoreThis=false
-
-		for word in ${link_ignore}
-		do
-			if echo $file | grep $word &> /dev/null
-			then
-				ignoreThis=true
-				break
-			fi
-		done
-
-		if [ $ignoreThis != true ]
+		if [ "$(readlink ~/.$file)" != "$dotfiles_dir/$file" ]
 		then
-			if [ "$(readlink ~/.$file)" != "$dotfiles_dir/$file" ]
+			echo -e "\e[32m$file\e[m"
+
+			if ! grep "$HOME/\.$file" $linked_files_list &> /dev/null
 			then
-				echo -e "\e[32m$file\e[m"
-
-				if ! grep "$HOME/\.$file" $linked_files_list &> /dev/null
-				then
-					echo "$HOME/.$file" >> $linked_files_list
-				fi
-
-				# Create parent directories if they don't exist.
-				if test ! -d `dirname ~/.$file`
-				then
-					mkdir -p `dirname ~/.$file`
-				fi
-
-				# If a file with that name already exists, back it up.
-				if test -e ~/.$file
-				then
-					mv ~/.$file ~/.$file.ltd.bak
-				fi
-
-				# Actually do the linking.
-				ln -sf $dotfiles_dir/$file ~/.$file
+				echo "$HOME/.$file" >> $linked_files_list
 			fi
+
+			# Create parent directories if they don't exist.
+			if test ! -d `dirname ~/.$file`
+			then
+				mkdir -p `dirname ~/.$file`
+			fi
+
+			# If a file with that name already exists, back it up.
+			if test -e ~/.$file
+			then
+				mv ~/.$file ~/.$file.dotfiles.bak
+			fi
+
+			# Actually do the linking.
+			ln -sf $dotfiles_dir/$file ~/.$file
+		fi
+	done
+}
+
+function copy_dotfiles()
+{
+	# Now symlink any files that git is tracking
+	# but that haven't been added to the ignore array.
+	echo -e "\e[36mCopying dotfiles:\e[m"
+	for file in $(cd $dotfiles_dir/copy && git ls-files)
+	do
+		if ! grep "$HOME/\.$file" $copied_files_list &> /dev/null
+		then
+			echo -e "\e[32m$file\e[m"
+			echo "$HOME/.$file" >> $copied_files_list
+
+			# Create parent directories if they don't exist.
+			if test ! -d `dirname ~/.$file`
+			then
+				mkdir -p `dirname ~/.$file`
+			fi
+
+			# If a file with that name already exists, back it up.
+			if test -e ~/.$file
+			then
+				mv ~/.$file ~/.$file.dotfiles.bak
+			fi
+
+			# Actually copy the file
+			cp $dotfiles_dir/copy/$file ~/.$file
 		fi
 	done
 }
@@ -174,9 +186,9 @@ function remove_linked_files()
 				unlink $file
 
 				# Restore backup file if it exists.
-				if test -e $file.ltd.bak
+				if test -e $file.dotfiles.bak
 				then
-					mv $file.ltd.bak $file
+					mv $file.dotfiles.bak $file
 				fi
 			fi
 		done
@@ -237,7 +249,9 @@ then
 	run_extension_scripts $@
 fi
 
-link_dotfiles $@
+link_dotfiles
+
+copy_dotfiles
 
 # Unless told otherwise, we install a post merge hook here.
 if [[ "$option_install_hook" == "true" ]]
