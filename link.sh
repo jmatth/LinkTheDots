@@ -64,7 +64,6 @@ function copy_dotfiles()
 		if ! grep "$HOME/\.$file" $copied_files_list &> /dev/null
 		then
 			echo -e "\e[32m$file\e[m"
-			echo "$HOME/.$file" >> $copied_files_list
 
 			# Create parent directories if they don't exist.
 			if test ! -d `dirname ~/.$file`
@@ -72,14 +71,37 @@ function copy_dotfiles()
 				mkdir -p `dirname ~/.$file`
 			fi
 
-			# If a file with that name already exists, back it up.
+			# If a file with that name already exists, check with the user
 			if test -e ~/.$file
 			then
-				mv ~/.$file ~/.$file.dotfiles.bak
-			fi
+				echo -e "File $HOME/.$file already exists. \
+					Please choose action to take:"
+				existing_file_action=""
+				while [ "$existing_file_action" != "r" ] || \
+					[ "$existing_file_action" != "s" ]
+				do
+					echo "r: Replace it with the version from dotfiles. The \
+						current version will be copied to \
+						$HOME/.${file}.dotfiles.bak"
 
-			# Actually copy the file
-			cp $dotfiles_dir/copy/$file ~/.$file
+					echo "s: Skip it. The current version will be left in \
+						place and you will not receive this prompt on \
+						subsequent runs."
+
+					read existing_file_action
+				done
+
+				if [ "$existing_file_action" == "r" ]
+				then
+					mv ~/.$file ~/.$file.dotfiles.bak
+					cp $dotfiles_dir/copy/$file ~/.$file
+				fi
+			else
+				# This is here to remove broken symlinks.
+				rm -f $HOME/.$file
+				cp $dotfiles_dir/copy/$file ~/.$file
+			fi
+			echo "$HOME/.$file" >> $copied_files_list
 		fi
 	done
 }
