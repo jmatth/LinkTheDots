@@ -77,8 +77,8 @@ function copy_dotfiles()
 			# If a file with that name already exists, check with the user
 			if test -e ~/.$file
 			then
-				echo -e "File $HOME/.$file already exists."
-				echo -e "Please choose action to take:"
+				echo -e "\e[33mFile $HOME/.$file already exists."
+				echo -e "\e[33mPlease choose action to take:\e[m"
 
 				existing_file_action="$option_copy_conflict_action"
 				while [ "$existing_file_action" != "r" ] && \
