@@ -74,19 +74,19 @@ function copy_dotfiles()
 			# If a file with that name already exists, check with the user
 			if test -e ~/.$file
 			then
-				echo -e "File $HOME/.$file already exists. \
-					Please choose action to take:"
+				echo -e "File $HOME/.$file already exists."
+				echo -e "Please choose action to take:"
 				existing_file_action=""
-				while [ "$existing_file_action" != "r" ] || \
+				while [ "$existing_file_action" != "r" ] && \
 					[ "$existing_file_action" != "s" ]
 				do
-					echo "r: Replace it with the version from dotfiles. The \
-						current version will be copied to \
-						$HOME/.${file}.dotfiles.bak"
+					echo "r: Replace it with the version from dotfiles. The"
+					echo "   current version will be copied to"
+					echo "   $HOME/.${file}.dotfiles.bak"
 
-					echo "s: Skip it. The current version will be left in \
-						place and you will not receive this prompt on \
-						subsequent runs."
+					echo "s: Skip it. The current version will be left in "
+					echo "   place and you will not receive this prompt on"
+					echo "   subsequent runs."
 
 					read existing_file_action
 				done
