@@ -13,6 +13,9 @@ option_remove_hook=false
 option_remove_links=false
 option_remove_copies=false
 
+# p: prompt, r: replace, i: ignore
+option_copy_conflict_action="p"
+
 # Where to store a list of linked files.
 linked_files_list=$HOME/.dotfiles_linked
 copied_files_list=$HOME/.dotfiles_copied
@@ -76,15 +79,16 @@ function copy_dotfiles()
 			then
 				echo -e "File $HOME/.$file already exists."
 				echo -e "Please choose action to take:"
-				existing_file_action=""
+
+				existing_file_action="$option_copy_conflict_action"
 				while [ "$existing_file_action" != "r" ] && \
-					[ "$existing_file_action" != "s" ]
+					[ "$existing_file_action" != "i" ]
 				do
 					echo "r: Replace it with the version from dotfiles. The"
 					echo "   current version will be copied to"
 					echo "   $HOME/.${file}.dotfiles.bak"
 
-					echo "s: Skip it. The current version will be left in "
+					echo "i: Ignore it. The current version will be left in "
 					echo "   place and you will not receive this prompt on"
 					echo "   subsequent runs."
 
@@ -116,6 +120,8 @@ function check_ltd_args()
 			"--skip-extensions") option_run_extensions=false;;
 			"--skip-link") option_link_files=false;;
 			"--skip-copy") option_copy_files=false;;
+			"--copy-replace") option_copy_conflict_action="r";;
+			"--copy-ignore") option_copy_conflict_action="i";;
 			"--remove-hook") option_remove_hook=true;;
 			"--remove-links") option_remove_links=true;;
 			"--remove-copies") option_remove_copies=true;;
@@ -134,6 +140,8 @@ function print_help()
 	echo "--skip-extensions:   Don't run extension scripts."
 	echo "--skip-link:         Don't link files in link/."
 	echo "--skip-copy:         Don't copy files in copy/."
+	echo "--copy-replace:      Replace conflicting files during copy."
+	echo "--copy-ignore:       Ignore conflicting files during copy."
 	echo "--remove-hook:       Remove post-merge hook."
 	echo "--remove-links:      Remove all linked files."
 	echo "--remove-copies:     Remove all copied files."
