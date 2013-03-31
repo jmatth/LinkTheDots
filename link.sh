@@ -245,9 +245,9 @@ function remove_post_merge_hook()
 	rm -f $dotfiles_dir/.git/hooks/post-merge
 }
 
-function is_submodule() 
-{       
-	(cd "$(git rev-parse --show-toplevel 2> /dev/null)/.." && 
+function is_submodule()
+{
+	(cd "$(git rev-parse --show-toplevel 2> /dev/null)/.." &&
 	git rev-parse --is-inside-work-tree) 2> /dev/null | grep true &> /dev/null
 }
 
