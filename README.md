@@ -40,3 +40,47 @@ dotfiles
 └── source
     └── fancyscript.sh
 ```
+
+Once your dotfiles are in the proper places, you can install this scrip in one
+of two ways.
+
+###Installation with Submodule (Recommended)
+
+To install as a submodule, navigate to the root of your dotfiles repo and run:
+`git submodule add http://github.com/jmatth/LinkTheDots.git ltd`. This will add
+this repo as a submodule in the directory ltd. This method is recommended
+because it will be easy to update to later versions of LTD just by updating the
+submodule.
+
+###Installation by Copying
+
+If you don't appreciate submodules in your dotfiles, you can always just copy
+the script "link.sh" into the top directory of your dotfiles repo and run it
+from there. The script is written to detect whether or not it is inside a
+submodule, so you can just commit and run.
+
+
+Usage
+-----
+
+`./link.sh [OPTIONS]`
+
+| Option              | Meaning                                   |
+| ------------------- | ----------------------------------------- |
+| `--help`            | Print this message and exit.              |
+| `--skip-hook`       | Don't install post-merge hook.            |
+| `--skip-source`     | Don't run source scripts.                 |
+| `--skip-link`       | Don't link files in link/.                |
+| `--skip-copy`       | Don't copy files in copy/.                |
+| `--copy-replace`    | Replace conflicting files during copy.    |
+| `--copy-ignore`     | Ignore conflicting files during copy.     |
+| `--remove-hook`     | Remove post-merge hook.                   |
+| `--remove-links`    | Remove all linked files.                  |
+| `--remove-copies`   | Remove all copied files.                  |
+| `--remove-all`      | Remove copied and linked files, and hook. |
+
+**NOTE:** All arguments given to `link.sh` are also passed to any custom scripts
+in `source/`, and specifying arguments not listed here will not create an error.
+This way you can write your scripts to respond to these arguments or create a
+completely different set of arguments for them to use without having to modify
+the main script.

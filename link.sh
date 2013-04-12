@@ -6,7 +6,7 @@
 # Variables used to check specified args. Prefixed with "option"
 # to avoid confusion with otherwise similarly named functions.
 option_install_hook=true
-option_run_extensions=true
+option_source_scripts=true
 option_link_files=true
 option_copy_files=true
 option_remove_hook=false
@@ -117,7 +117,7 @@ function check_ltd_args()
 		case $arg in
 			"--help") print_help; exit 0;;
 			"--skip-hook") option_install_hook=false;;
-			"--skip-extensions") option_run_extensions=false;;
+			"--skip-source") option_source_scripts=false;;
 			"--skip-link") option_link_files=false;;
 			"--skip-copy") option_copy_files=false;;
 			"--copy-replace") option_copy_conflict_action="r";;
@@ -137,7 +137,7 @@ function print_help()
 	echo "OPTIONS"
 	echo "--help:              Print this message and exit."
 	echo "--skip-hook:         Don't install post-merge hook."
-	echo "--skip-extensions:   Don't run extension scripts."
+	echo "--skip-source:       Don't source custom scripts."
 	echo "--skip-link:         Don't link files in link/."
 	echo "--skip-copy:         Don't copy files in copy/."
 	echo "--copy-replace:      Replace conflicting files during copy."
@@ -148,14 +148,14 @@ function print_help()
 	echo "--remove-all:        Remove copied and linked files, and hook."
 }
 
-function run_extension_scripts()
+function source_custom_scripts()
 {
-	# Now we run any custom extensions.
+	# Now we source an custom scripts
 	if test -d $dotfiles_dir/source
 	then
-		for extension in $(ls $dotfiles_dir/source)
+		for script in $(ls $dotfiles_dir/source)
 		do
-			source $dotfiles_dir/source/$extension
+			source $dotfiles_dir/source/$script
 		done
 	fi
 }
@@ -290,9 +290,9 @@ then
 	exit 0
 fi
 
-if [[ "$option_run_extensions" == "true" ]]
+if [[ "$option_source_scripts" == "true" ]]
 then
-	run_extension_scripts $@
+	source_custom_scripts $@
 fi
 
 if [[ "$option_link_files" == "true" ]]
