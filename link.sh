@@ -184,7 +184,7 @@ function install_post_merge_hook()
 		echo -e "\e[36mInstalling post merge hook.\e[m"
 		hook="$dotfiles_dir/.git/hooks/post-merge"
 		echo "#!/usr/bin/env bash" > $hook
-		echo "(cd $dotfiles_dir && git submodule update --init --recursive)" \
+		echo "( cd $dotfiles_dir && git submodule update --init --recursive )" \
 			>> $hook
 
 		# if this script was run with any arguments then we want
@@ -197,7 +197,7 @@ function install_post_merge_hook()
 		# This seems to be the first run, so we'll go ahead
 		# and initialize the submodules.
 		echo -e "\e[36mAssuming submodules are empty, initializing now:\e[m"
-		(cd $dotfiles_dir && git submodule update --init --recursive)
+		( cd $dotfiles_dir && git submodule update --init --recursive )
 	fi
 }
 
@@ -267,8 +267,8 @@ function remove_post_merge_hook()
 
 function is_submodule()
 {
-	(cd "$(git rev-parse --show-toplevel 2> /dev/null)/.." &&
-	git rev-parse --is-inside-work-tree) 2> /dev/null | grep true &> /dev/null
+	( cd "$(git rev-parse --show-toplevel 2> /dev/null)/.." &&
+	git rev-parse --is-inside-work-tree ) 2> /dev/null | grep true &> /dev/null
 }
 
 #--------------------------------------------------------------------------
@@ -281,7 +281,7 @@ function is_submodule()
 script_dir="$( cd "$( dirname "$0" )" && pwd )"
 
 #Check if we're in a submodule and set directories accordingly.
-if (cd $script_dir && is_submodule)
+if ( cd $script_dir && is_submodule )
 then
 	dotfiles_dir=`dirname $script_dir`
 else
