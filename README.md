@@ -21,14 +21,17 @@ what to do with each file. In the top of your repo, it looks for:
    Once a file has been copied like this, it will not be overwritten on
    subsequent runs.
 
-3. `source/` Any files placed here will be sourced at runtime, before any
+3. `pre/` Any files placed here will be sourced at runtime, before any
    linking. This should contain scripts for accomplishing any special tasks that
    aren't supported out of the box.
 
+4. `post/` Similar to the previous directory, but scripts here are sourced after
+   all linking and copying is done, as the last action before ltd exits.
+
 For example, if you want to keep `bashrc` linked to your dotfiles on all your
 machines, install a base `ssh/config` on new machines, and run `fancyscript.sh`
-every time you pull updates to your dotfiles, your dotfiles repo should look
-something like this:
+before linking every time you pull updates to your dotfiles, your dotfiles repo
+should look something like this:
 
 ```
 dotfiles
@@ -37,11 +40,11 @@ dotfiles
 │       └── config
 ├── link
 │   └── bashrc
-└── source
+└── pre
     └── fancyscript.sh
 ```
 
-Once your dotfiles are in the proper places, you can install this scrip in one
+Once your dotfiles are in the proper places, you can install this script in one
 of two ways.
 
 ###Installation with Submodule (Recommended)
@@ -69,7 +72,8 @@ Usage
 | ------------------- | ----------------------------------------- |
 | `--help`            | Print this message and exit.              |
 | `--skip-hook`       | Don't install post-merge hook.            |
-| `--skip-source`     | Don't run source scripts.                 |
+| `--skip-pre`        | Don't run pre scripts.                    |
+| `--skip-post`       | Don't run post scripts.                   |
 | `--skip-link`       | Don't link files in link/.                |
 | `--skip-copy`       | Don't copy files in copy/.                |
 | `--copy-replace`    | Replace conflicting files during copy.    |

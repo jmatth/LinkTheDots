@@ -6,7 +6,8 @@
 # Variables used to check specified args. Prefixed with "option"
 # to avoid confusion with otherwise similarly named functions.
 option_install_hook=true
-option_source_scripts=true
+option_pre_scripts=true
+option_post_scripts=true
 option_link_files=true
 option_copy_files=true
 option_remove_hook=false
@@ -117,7 +118,8 @@ function check_ltd_args()
 		case $arg in
 			"--help") print_help; exit 0;;
 			"--skip-hook") option_install_hook=false;;
-			"--skip-source") option_source_scripts=false;;
+			"--skip-pre") option_pre_scripts=false;;
+			"--skip-post") option_post_scripts=false;;
 			"--skip-link") option_link_files=false;;
 			"--skip-copy") option_copy_files=false;;
 			"--copy-replace") option_copy_conflict_action="r";;
@@ -137,7 +139,8 @@ function print_help()
 	echo "OPTIONS"
 	echo "--help:              Print this message and exit."
 	echo "--skip-hook:         Don't install post-merge hook."
-	echo "--skip-source:       Don't source custom scripts."
+	echo "--skip-pre:          Don't source pre scripts."
+	echo "--skip-post:         Don't source post scripts."
 	echo "--skip-link:         Don't link files in link/."
 	echo "--skip-copy:         Don't copy files in copy/."
 	echo "--copy-replace:      Replace conflicting files during copy."
@@ -148,14 +151,26 @@ function print_help()
 	echo "--remove-all:        Remove copied and linked files, and hook."
 }
 
-function source_custom_scripts()
+function source_pre_scripts()
 {
-	# Now we source an custom scripts
-	if test -d $dotfiles_dir/source
+	# Now we source any pre scripts
+	if test -d $dotfiles_dir/pre
 	then
-		for script in $(ls $dotfiles_dir/source)
+		for script in $(ls $dotfiles_dir/pre)
 		do
-			source $dotfiles_dir/source/$script
+			source $dotfiles_dir/pre/$script
+		done
+	fi
+}
+
+function source_pre_scripts()
+{
+	# Now we source any post scripts
+	if test -d $dotfiles_dir/post
+	then
+		for script in $(ls $dotfiles_dir/post)
+		do
+			source $dotfiles_dir/post/$script
 		done
 	fi
 }
@@ -290,9 +305,9 @@ then
 	exit 0
 fi
 
-if [[ "$option_source_scripts" == "true" ]]
+if [[ "$option_pre_scripts" == "true" ]]
 then
-	source_custom_scripts $@
+	source_pre_scripts $@
 fi
 
 if [[ "$option_link_files" == "true" ]]
@@ -312,3 +327,8 @@ then
 fi
 
 remove_dead_links
+
+if [[ "$option_post_scripts" == "true" ]]
+then
+	source_post_scripts $@
+fi
