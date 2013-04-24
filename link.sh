@@ -31,29 +31,29 @@ function link_dotfiles()
 	echo -e "\e[36mSymlinking dotfiles:\e[m"
 	for file in $(cd $dotfiles_dir/link && git ls-files)
 	do
-		if [ "$(readlink ~/.$file)" != "$dotfiles_dir/link/$file" ]
+		if [ "$(readlink ~/$file)" != "$dotfiles_dir/link/$file" ]
 		then
 			echo -e "\e[32m$file\e[m"
 
-			if ! grep "$HOME/\.$file" $linked_files_list &> /dev/null
+			if ! grep "$HOME/\$file" $linked_files_list &> /dev/null
 			then
-				echo "$HOME/.$file" >> $linked_files_list
+				echo "$HOME/$file" >> $linked_files_list
 			fi
 
 			# Create parent directories if they don't exist.
-			if test ! -d `dirname ~/.$file`
+			if test ! -d `dirname ~/$file`
 			then
-				mkdir -p `dirname ~/.$file`
+				mkdir -p `dirname ~/$file`
 			fi
 
 			# If a file with that name already exists, back it up.
-			if test -e ~/.$file
+			if test -e ~/$file
 			then
-				mv ~/.$file ~/.$file.dotfiles.bak
+				mv ~/$file ~/$file.dotfiles.bak
 			fi
 
 			# Actually do the linking.
-			ln -sf $dotfiles_dir/link/$file ~/.$file
+			ln -sf $dotfiles_dir/link/$file ~/$file
 		fi
 	done
 }
@@ -65,20 +65,20 @@ function copy_dotfiles()
 	echo -e "\e[36mCopying dotfiles:\e[m"
 	for file in $(cd $dotfiles_dir/copy && git ls-files)
 	do
-		if ! grep "$HOME/\.$file" $copied_files_list &> /dev/null
+		if ! grep "$HOME/\$file" $copied_files_list &> /dev/null
 		then
 			echo -e "\e[32m$file\e[m"
 
 			# Create parent directories if they don't exist.
-			if test ! -d `dirname ~/.$file`
+			if test ! -d `dirname ~/$file`
 			then
-				mkdir -p `dirname ~/.$file`
+				mkdir -p `dirname ~/$file`
 			fi
 
 			# If a file with that name already exists, check with the user
-			if test -e ~/.$file
+			if test -e ~/$file
 			then
-				echo -e "\e[33mFile $HOME/.$file already exists."
+				echo -e "\e[33mFile $HOME/$file already exists."
 				echo -e "\e[33mPlease choose action to take:\e[m"
 
 				existing_file_action="$option_copy_conflict_action"
@@ -98,15 +98,15 @@ function copy_dotfiles()
 
 				if [ "$existing_file_action" == "r" ]
 				then
-					mv ~/.$file ~/.$file.dotfiles.bak
-					cp $dotfiles_dir/copy/$file ~/.$file
+					mv ~/$file ~/$file.dotfiles.bak
+					cp $dotfiles_dir/copy/$file ~/$file
 				fi
 			else
 				# This is here to remove broken symlinks.
-				rm -f $HOME/.$file
-				cp $dotfiles_dir/copy/$file ~/.$file
+				rm -f $HOME/$file
+				cp $dotfiles_dir/copy/$file ~/$file
 			fi
-			echo "$HOME/.$file" >> $copied_files_list
+			echo "$HOME/$file" >> $copied_files_list
 		fi
 	done
 }
