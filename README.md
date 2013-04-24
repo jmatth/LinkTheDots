@@ -28,18 +28,18 @@ what to do with each file. In the top of your repo, it looks for:
 4. `post/` Similar to the previous directory, but scripts here are sourced after
    all linking and copying is done, as the last action before ltd exits.
 
-For example, if you want to keep `bashrc` linked to your dotfiles on all your
-machines, install a base `ssh/config` on new machines, and run `fancyscript.sh`
+For example, if you want to keep `.bashrc` linked to your dotfiles on all your
+machines, install a base `.ssh/config` on new machines, and run `fancyscript.sh`
 before linking every time you pull updates to your dotfiles, your dotfiles repo
 should look something like this:
 
 ```
 dotfiles
 ├── copy
-│   └── ssh
-│       └── config
+│   └── .ssh
+│        └── config
 ├── link
-│   └── bashrc
+│   └── .bashrc
 └── pre
     └── fancyscript.sh
 ```
