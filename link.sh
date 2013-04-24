@@ -26,89 +26,91 @@ copied_files_list=$HOME/.dotfiles_copied
 #--------------------------------------------------------------------------
 function link_dotfiles()
 {
-	# Now symlink any files that git is tracking
-	# but that haven't been added to the ignore array.
-	echo -e "\e[36mSymlinking dotfiles:\e[m"
-	for file in $(cd $dotfiles_dir/link && git ls-files)
-	do
-		if [ "$(readlink ~/$file)" != "$dotfiles_dir/link/$file" ]
-		then
-			echo -e "\e[32m$file\e[m"
-
-			if ! grep "$HOME/\$file" $linked_files_list &> /dev/null
+	if test -d $dotfiles_dir/link
+	then
+		echo -e "\e[36mSymlinking dotfiles:\e[m"
+		for file in $(cd $dotfiles_dir/link && git ls-files)
+		do
+			if [ "$(readlink ~/$file)" != "$dotfiles_dir/link/$file" ]
 			then
-				echo "$HOME/$file" >> $linked_files_list
-			fi
+				echo -e "\e[32m$file\e[m"
 
-			# Create parent directories if they don't exist.
-			if test ! -d `dirname ~/$file`
-			then
-				mkdir -p `dirname ~/$file`
-			fi
+				if ! grep "$HOME/\$file" $linked_files_list &> /dev/null
+				then
+					echo "$HOME/$file" >> $linked_files_list
+				fi
 
-			# If a file with that name already exists, back it up.
-			if test -e ~/$file
-			then
-				mv ~/$file ~/$file.dotfiles.bak
-			fi
+				# Create parent directories if they don't exist.
+				if test ! -d `dirname ~/$file`
+				then
+					mkdir -p `dirname ~/$file`
+				fi
 
-			# Actually do the linking.
-			ln -sf $dotfiles_dir/link/$file ~/$file
-		fi
-	done
+				# If a file with that name already exists, back it up.
+				if test -e ~/$file
+				then
+					mv ~/$file ~/$file.dotfiles.bak
+				fi
+
+				# Actually do the linking.
+				ln -sf $dotfiles_dir/link/$file ~/$file
+			fi
+		done
+	fi
 }
 
 function copy_dotfiles()
 {
-	# Now symlink any files that git is tracking
-	# but that haven't been added to the ignore array.
-	echo -e "\e[36mCopying dotfiles:\e[m"
-	for file in $(cd $dotfiles_dir/copy && git ls-files)
-	do
-		if ! grep "$HOME/\$file" $copied_files_list &> /dev/null
-		then
-			echo -e "\e[32m$file\e[m"
-
-			# Create parent directories if they don't exist.
-			if test ! -d `dirname ~/$file`
+	if test -d $dotfiles_dir/copy
+	then
+		echo -e "\e[36mCopying dotfiles:\e[m"
+		for file in $(cd $dotfiles_dir/copy && git ls-files)
+		do
+			if ! grep "$HOME/\$file" $copied_files_list &> /dev/null
 			then
-				mkdir -p `dirname ~/$file`
-			fi
+				echo -e "\e[32m$file\e[m"
 
-			# If a file with that name already exists, check with the user
-			if test -e ~/$file
-			then
-				echo -e "\e[33mFile $HOME/$file already exists."
-				echo -e "\e[33mPlease choose action to take:\e[m"
-
-				existing_file_action="$option_copy_conflict_action"
-				while [ "$existing_file_action" != "r" ] && \
-					[ "$existing_file_action" != "i" ]
-				do
-					echo "r: Replace it with the version from dotfiles. The"
-					echo "   current version will be copied to"
-					echo "   $HOME/.${file}.dotfiles.bak"
-
-					echo "i: Ignore it. The current version will be left in "
-					echo "   place and you will not receive this prompt on"
-					echo "   subsequent runs."
-
-					read existing_file_action
-				done
-
-				if [ "$existing_file_action" == "r" ]
+				# Create parent directories if they don't exist.
+				if test ! -d `dirname ~/$file`
 				then
-					mv ~/$file ~/$file.dotfiles.bak
+					mkdir -p `dirname ~/$file`
+				fi
+
+				# If a file with that name already exists, check with the user
+				if test -e ~/$file
+				then
+					echo -e "\e[33mFile $HOME/$file already exists."
+					echo -e "\e[33mPlease choose action to take:\e[m"
+
+					existing_file_action="$option_copy_conflict_action"
+					while [ "$existing_file_action" != "r" ] && \
+						[ "$existing_file_action" != "i" ]
+					do
+						echo "r: Replace it with the version from dotfiles. The"
+						echo "   current version will be copied to"
+						echo "   $HOME/.${file}.dotfiles.bak"
+
+						echo "i: Ignore it. The current version will be left in "
+						echo "   place and you will not receive this prompt on"
+						echo "   subsequent runs."
+
+						read existing_file_action
+					done
+
+					if [ "$existing_file_action" == "r" ]
+					then
+						mv ~/$file ~/$file.dotfiles.bak
+						cp $dotfiles_dir/copy/$file ~/$file
+					fi
+				else
+					# This is here to remove broken symlinks.
+					rm -f $HOME/$file
 					cp $dotfiles_dir/copy/$file ~/$file
 				fi
-			else
-				# This is here to remove broken symlinks.
-				rm -f $HOME/$file
-				cp $dotfiles_dir/copy/$file ~/$file
+				echo "$HOME/$file" >> $copied_files_list
 			fi
-			echo "$HOME/$file" >> $copied_files_list
-		fi
-	done
+		done
+	fi
 }
 
 function check_ltd_args()
@@ -163,7 +165,7 @@ function source_pre_scripts()
 	fi
 }
 
-function source_pre_scripts()
+function source_post_scripts()
 {
 	# Now we source any post scripts
 	if test -d $dotfiles_dir/post
@@ -201,29 +203,32 @@ function install_post_merge_hook()
 
 function remove_dead_links()
 {
-	current_line_number=1
-
-	echo -e "\e[33mRemoving broken links:\e[m"
-	for file in `cat $linked_files_list`
-	do
-		if test -h $file
-		then
-			if test ! -r $file
-			then
-				echo -e "\e[31m$file\e[m"
-				unlink $file
-				sed -i -e $current_line_number"d" $linked_files_list
-			else
-				current_line_number=$(($current_line_number+1))
-			fi
-		else
-			sed -i -e $current_line_number"d" $linked_files_list
-		fi
-	done
-
-	if test ! -s $linked_files_list
+	if test -r $linked_files_list
 	then
-		rm $linked_files_list
+		current_line_number=1
+
+		echo -e "\e[33mRemoving broken links:\e[m"
+		for file in `cat $linked_files_list`
+		do
+			if test -h $file
+			then
+				if test ! -r $file
+				then
+					echo -e "\e[31m$file\e[m"
+					unlink $file
+					sed -i -e $current_line_number"d" $linked_files_list
+				else
+					current_line_number=$(($current_line_number+1))
+				fi
+			else
+				sed -i -e $current_line_number"d" $linked_files_list
+			fi
+		done
+
+		if test ! -s $linked_files_list
+		then
+			rm $linked_files_list
+		fi
 	fi
 }
 
