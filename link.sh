@@ -17,10 +17,6 @@ option_remove_copies=false
 # p: prompt, r: replace, i: ignore
 option_copy_conflict_action="p"
 
-# Where to store a list of linked files.
-linked_files_list=$HOME/.dotfiles_linked
-copied_files_list=$HOME/.dotfiles_copied
-
 #--------------------------------------------------------------------------
 # Now declare our functions
 #--------------------------------------------------------------------------
@@ -280,12 +276,17 @@ function is_submodule()
 # Get script directory
 script_dir="$( cd "$( dirname "$0" )" && pwd )"
 
-#Check if we're in a submodule and set directories accordingly.
+# Check if we're in a submodule and set directories accordingly.
+# Also decide where to keep the list of linked/copied files.
 if ( cd $script_dir && is_submodule )
 then
 	dotfiles_dir=`dirname $script_dir`
+	linked_files_list=$script_dir/dotfiles_linked
+	copied_files_list=$script_dir/dotfiles_copied
 else
 	dotfiles_dir="$script_dir"
+	linked_files_list=$HOME/.dotfiles_linked
+	copied_files_list=$HOME/.dotfiles_copied
 fi
 
 check_ltd_args $@
