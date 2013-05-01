@@ -31,7 +31,7 @@ function link_dotfiles()
 			then
 				echo -e "\e[32m$file\e[m"
 
-				if ! grep "$HOME/\$file" $linked_files_list &> /dev/null
+				if ! grep "$HOME/$file" $linked_files_list &> /dev/null
 				then
 					echo "$HOME/$file" >> $linked_files_list
 				fi
@@ -62,7 +62,7 @@ function copy_dotfiles()
 		echo -e "\e[36mCopying dotfiles:\e[m"
 		for file in $(cd $dotfiles_dir/copy && git ls-files)
 		do
-			if ! grep "$HOME/\$file" $copied_files_list &> /dev/null
+			if ! grep "$HOME/$file" $copied_files_list &> /dev/null
 			then
 				echo -e "\e[32m$file\e[m"
 
