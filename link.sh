@@ -31,11 +31,6 @@ function link_dotfiles()
 			then
 				echo -e "\e[32m$file\e[m"
 
-				if ! grep "$HOME/$file" $linked_files_list &> /dev/null
-				then
-					echo "$HOME/$file" >> $linked_files_list
-				fi
-
 				# Create parent directories if they don't exist.
 				if test ! -d `dirname ~/$file`
 				then
@@ -50,6 +45,14 @@ function link_dotfiles()
 
 				# Actually do the linking.
 				ln -sf $dotfiles_dir/link/$file ~/$file
+			fi
+
+			# Add the file to the list of linked files. This is out here to
+			# rebuild the list incase it gets deleted/modified.
+			# FIXME: should rebuild_list be a separate function?
+			if ! grep "$HOME/$file" $linked_files_list &> /dev/null
+			then
+				echo "$HOME/$file" >> $linked_files_list
 			fi
 		done
 	fi
