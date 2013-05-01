@@ -99,13 +99,20 @@ function copy_dotfiles()
 					if [ "$existing_file_action" == "r" ]
 					then
 						mv ~/$file ~/$file.dotfiles.bak
-						cp $dotfiles_dir/copy/$file ~/$file
 					fi
-				else
+				fi
+
+				if [ "$existing_file_action" != "i" ]
+				then
 					# This is here to remove broken symlinks.
 					rm -f $HOME/$file
-					cp $dotfiles_dir/copy/$file ~/$file
+					# Recursive in case it's a submodule
+					# FIXME: this won't copy the whole project in
+					#        newer versions of git
+					cp -r $dotfiles_dir/copy/$file ~/$file
 				fi
+
+				# Store that we copied this file so we don't do it next time.
 				echo "$HOME/$file" >> $copied_files_list
 			fi
 		done
