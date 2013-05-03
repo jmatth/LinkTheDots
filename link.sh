@@ -94,7 +94,7 @@ function copy_dotfiles()
 						echo "   current version will be copied to"
 						echo "   $HOME/.${file}.dotfiles.bak"
 
-						echo "i: Ignore it. The current version will be left in "
+						echo "i: Ignore it. The current version will be left in"
 						echo "   place and you will not receive this prompt on"
 						echo "   subsequent runs."
 
