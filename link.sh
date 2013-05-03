@@ -31,11 +31,6 @@ function link_dotfiles()
 			then
 				echo -e "\e[32m$file\e[m"
 
-				if ! grep "$HOME/\$file" $linked_files_list &> /dev/null
-				then
-					echo "$HOME/$file" >> $linked_files_list
-				fi
-
 				# Create parent directories if they don't exist.
 				if test ! -d `dirname ~/$file`
 				then
@@ -51,6 +46,14 @@ function link_dotfiles()
 				# Actually do the linking.
 				ln -sf $dotfiles_dir/link/$file ~/$file
 			fi
+
+			# Add the file to the list of linked files. This is out here to
+			# rebuild the list incase it gets deleted/modified.
+			# FIXME: should rebuild_list be a separate function?
+			if ! grep "$HOME/$file" $linked_files_list &> /dev/null
+			then
+				echo "$HOME/$file" >> $linked_files_list
+			fi
 		done
 	fi
 }
@@ -62,7 +65,7 @@ function copy_dotfiles()
 		echo -e "\e[36mCopying dotfiles:\e[m"
 		for file in $(cd $dotfiles_dir/copy && git ls-files)
 		do
-			if ! grep "$HOME/\$file" $copied_files_list &> /dev/null
+			if ! grep "$HOME/$file" $copied_files_list &> /dev/null
 			then
 				echo -e "\e[32m$file\e[m"
 
@@ -101,13 +104,20 @@ function copy_dotfiles()
 					if [ "$existing_file_action" == "r" ]
 					then
 						mv ~/$file ~/$file.dotfiles.bak
-						cp $dotfiles_dir/copy/$file ~/$file
 					fi
-				else
+				fi
+
+				if [ "$existing_file_action" != "i" ]
+				then
 					# This is here to remove broken symlinks.
 					rm -f $HOME/$file
-					cp $dotfiles_dir/copy/$file ~/$file
+					# Recursive in case it's a submodule
+					# FIXME: this won't copy the whole project in
+					#        newer versions of git
+					cp -r $dotfiles_dir/copy/$file ~/$file
 				fi
+
+				# Store that we copied this file so we don't do it next time.
 				echo "$HOME/$file" >> $copied_files_list
 			fi
 		done
