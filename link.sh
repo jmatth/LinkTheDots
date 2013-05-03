@@ -110,11 +110,35 @@ function copy_dotfiles()
 				if [ "$existing_file_action" != "i" ]
 				then
 					# This is here to remove broken symlinks.
-					rm -f $HOME/$file
-					# Recursive in case it's a submodule
-					# FIXME: this won't copy the whole project in
-					#        newer versions of git
-					cp -r $dotfiles_dir/copy/$file ~/$file
+					rm -rf $HOME/$file
+
+					if test -d $dotfiles_dir/copy/$file
+					then
+						# We have a submodule. Time to do some magic.
+						cp -r $dotfiles_dir/copy/$file ~/$file
+
+						# First check to make sure .git is there. Might not be
+						# if they tried to run without updating submodules.
+						if test -e $dotfiles_dir/copy/$file/.git
+						then
+							# If it's not a directory, means we're working with
+							# the post 1.7.8 spec and need to copy the git data
+							# from the parent repository.
+							if ! test -d $dotfiles_dir/copy/$file/.git
+							then
+								sm_git_path=`cut -d' ' -f2 \
+									$dotfiles_dir/copy/$file/.git`
+
+								rm -f ~/$file/.git
+
+								cp -r $dotfiles_dir/copy/$file/$sm_git_path \
+									~/$file/.git
+							fi
+						fi
+					else
+						# Not a submodule, just copy it.
+						cp $dotfiles_dir/copy/$file ~/$file
+					fi
 				fi
 
 				# Store that we copied this file so we don't do it next time.
