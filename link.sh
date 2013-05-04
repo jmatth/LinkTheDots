@@ -10,6 +10,7 @@ option_pre_scripts=true
 option_post_scripts=true
 option_link_files=true
 option_copy_files=true
+option_update_submodules=true
 option_remove_hook=false
 option_remove_links=false
 option_remove_copies=false
@@ -155,6 +156,7 @@ function check_ltd_args()
 		case $arg in
 			"--help") print_help; exit 0;;
 			"--skip-hook") option_install_hook=false;;
+			"--skip-submodules") option_update_submodules=false;;
 			"--skip-pre") option_pre_scripts=false;;
 			"--skip-post") option_post_scripts=false;;
 			"--skip-link") option_link_files=false;;
@@ -176,6 +178,7 @@ function print_help()
 	echo "OPTIONS"
 	echo "--help:              Print this message and exit."
 	echo "--skip-hook:         Don't install post-merge hook."
+	echo "--skip-submodules:   Don't init and update submodules."
 	echo "--skip-pre:          Don't source pre scripts."
 	echo "--skip-post:         Don't source post scripts."
 	echo "--skip-link:         Don't link files in link/."
@@ -348,6 +351,11 @@ then
 		remove_dotfiles "copied"
 	fi
 	exit 0
+fi
+
+if [[ "option_update_submodules" == "true" ]]
+then
+	(cd $dotfiles_dir && git submodule init && git submodule update)
 fi
 
 if [[ "$option_pre_scripts" == "true" ]]

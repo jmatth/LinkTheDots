@@ -72,6 +72,7 @@ Usage
 | ------------------- | ----------------------------------------- |
 | `--help`            | Print this message and exit.              |
 | `--skip-hook`       | Don't install post-merge hook.            |
+| `--skip-submodules` | Don't init and update submodules.         |
 | `--skip-pre`        | Don't run pre scripts.                    |
 | `--skip-post`       | Don't run post scripts.                   |
 | `--skip-link`       | Don't link files in link/.                |
