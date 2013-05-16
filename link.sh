@@ -25,12 +25,12 @@ function link_dotfiles()
 {
 	if test -d $dotfiles_dir/link
 	then
-		echo -e "\e[36mSymlinking dotfiles:\e[m"
+		echo "[36mSymlinking dotfiles:[m"
 		for file in $(cd $dotfiles_dir/link && git ls-files)
 		do
 			if [ "$(readlink ~/$file)" != "$dotfiles_dir/link/$file" ]
 			then
-				echo -e "\e[32m$file\e[m"
+				echo "[32m$file[m"
 
 				# Create parent directories if they don't exist.
 				if test ! -d `dirname ~/$file`
@@ -63,12 +63,12 @@ function copy_dotfiles()
 {
 	if test -d $dotfiles_dir/copy
 	then
-		echo -e "\e[36mCopying dotfiles:\e[m"
+		echo "[36mCopying dotfiles:[m"
 		for file in $(cd $dotfiles_dir/copy && git ls-files)
 		do
 			if ! grep "$HOME/$file" $copied_files_list &> /dev/null
 			then
-				echo -e "\e[32m$file\e[m"
+				echo "[32m$file[m"
 
 				# Create parent directories if they don't exist.
 				if test ! -d `dirname ~/$file`
@@ -84,8 +84,8 @@ function copy_dotfiles()
 					if [ "$existing_file_action" != "r" ] && \
 						[ "$existing_file_action" != "i" ]
 					then
-						echo -e "\e[33mFile $HOME/$file already exists."
-						echo -e "\e[33mPlease choose action to take:\e[m"
+						echo "[33mFile $HOME/$file already exists."
+						echo "[33mPlease choose action to take:[m"
 					fi
 
 					while [ "$existing_file_action" != "r" ] && \
@@ -219,7 +219,7 @@ function install_post_merge_hook()
 {
 	if test ! -f $dotfiles_dir/.git/hooks/post-merge
 	then
-		echo -e "\e[36mInstalling post merge hook.\e[m"
+		echo "[36mInstalling post merge hook.[m"
 		hook="$dotfiles_dir/.git/hooks/post-merge"
 		echo "#!/usr/bin/env bash" > $hook
 		echo "( cd $dotfiles_dir && git submodule update --init --recursive )" \
@@ -234,7 +234,7 @@ function install_post_merge_hook()
 
 		# This seems to be the first run, so we'll go ahead
 		# and initialize the submodules.
-		echo -e "\e[36mAssuming submodules are empty, initializing now:\e[m"
+		echo "[36mAssuming submodules are empty, initializing now:[m"
 		( cd $dotfiles_dir && git submodule update --init --recursive )
 	fi
 }
@@ -245,14 +245,14 @@ function remove_dead_links()
 	then
 		current_line_number=1
 
-		echo -e "\e[33mRemoving broken links:\e[m"
+		echo "[33mRemoving broken links:[m"
 		for file in `cat $linked_files_list`
 		do
 			if test -h $file
 			then
 				if test ! -r $file
 				then
-					echo -e "\e[31m$file\e[m"
+					echo "[31m$file[m"
 					unlink $file
 					sed -i -e $current_line_number"d" $linked_files_list
 				else
@@ -281,10 +281,10 @@ function remove_dotfiles()
 
 	if test -s $list_file
 	then
-		echo -e "\e[33mRemoving all $1 files:\e[m"
+		echo "[33mRemoving all $1 files:[m"
 		for file in `cat $list_file`
 		do
-			echo -e "\e[31m$file\e[m"
+			echo "[31m$file[m"
 			unlink $file
 
 			# Restore backup file if it exists.
@@ -299,7 +299,7 @@ function remove_dotfiles()
 
 function remove_post_merge_hook()
 {
-	echo -e "\e[33mRemoving post-merge hook.\e[m"
+	echo "[33mRemoving post-merge hook.[m"
 	rm -f $dotfiles_dir/.git/hooks/post-merge
 }
 
