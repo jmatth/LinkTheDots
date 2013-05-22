@@ -322,11 +322,11 @@ script_dir="$( cd "$( dirname "$0" )" && pwd )"
 # Also decide where to keep the list of linked/copied files.
 if ( cd $script_dir && is_submodule )
 then
-	dotfiles_dir=`dirname $script_dir`
+	dotfiles_dir=$( cd `dirname $script_dir` && git rev-parse --show-toplevel )
 	linked_files_list=$script_dir/dotfiles_linked
 	copied_files_list=$script_dir/dotfiles_copied
 else
-	dotfiles_dir="$script_dir"
+	dotfiles_dir=$( cd $script_dir && git rev-parse --show-toplevel )
 	linked_files_list=$HOME/.dotfiles_linked
 	copied_files_list=$HOME/.dotfiles_copied
 fi
