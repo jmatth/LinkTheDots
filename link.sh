@@ -84,7 +84,7 @@ function copy_dotfiles()
                     if [ "$existing_file_action" != "r" ] && \
                         [ "$existing_file_action" != "i" ]
                     then
-                        echo "[33mFile $HOME/$file already exists."
+                        echo "[33mFile $HOME/$file already exists.[m"
                         echo "[33mPlease choose action to take:[m"
                     fi
 
@@ -316,7 +316,7 @@ function is_submodule()
 # will be global in the script. Is there a better way to get them into the
 # global scope without exporting?
 # Get script directory
-script_dir="$( cd "$( dirname "$0" )" && pwd )"
+script_dir=$( cd $( dirname $0 ) && pwd )
 
 # Check if we're in a submodule and set directories accordingly.
 # Also decide where to keep the list of linked/copied files.
