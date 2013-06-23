@@ -227,7 +227,7 @@ function install_post_merge_hook()
 
         # if this script was run with any arguments then we want
         # to keep them when it's run by the hook.
-        echo "$script_dir/link.sh $@" >> $hook
+        echo "$script_dir/`basename $0` $@" >> $hook
 
         # Make it executable
         chmod 755 $hook
@@ -322,7 +322,8 @@ script_dir=$( cd $( dirname $0 ) && pwd )
 # Also decide where to keep the list of linked/copied files.
 if ( cd $script_dir && is_submodule )
 then
-    dotfiles_dir=$( cd `dirname $script_dir` && git rev-parse --show-toplevel )
+    dotfiles_dir=$( cd $( dirname $( cd "$script_dir" && git rev-parse \
+        --show-toplevel 2> /dev/null ) ) && git rev-parse --show-toplevel )
     linked_files_list=$script_dir/dotfiles_linked
     copied_files_list=$script_dir/dotfiles_copied
 else
