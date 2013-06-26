@@ -17,58 +17,39 @@ option_remove_copies=false
 
 # p: prompt, r: replace, i: ignore
 option_copy_conflict_action="p"
+option_link_conflict_action="p"
 
 #--------------------------------------------------------------------------
 # Now declare our functions
 #--------------------------------------------------------------------------
-function link_dotfiles()
+function install_files()
 {
-    if test -d $dotfiles_dir/link
-    then
-        echo "[36mSymlinking dotfiles:[m"
-        for file in $(cd $dotfiles_dir/link && git ls-files)
-        do
-            if [ "$(readlink ~/$file)" != "$dotfiles_dir/link/$file" ]
-            then
-                echo "[32m$file[m"
-
-                # Create parent directories if they don't exist.
-                if test ! -d `dirname ~/$file`
-                then
-                    mkdir -p `dirname ~/$file`
-                fi
-
-                # If a file with that name already exists, back it up.
-                if test -e ~/$file
-                then
-                    mv ~/$file ~/$file.dotfiles.bak
-                fi
-
-                # Actually do the linking.
-                ln -sf $dotfiles_dir/link/$file ~/$file
-            fi
-
-            # Add the file to the list of linked files. This is out here to
-            # rebuild the list incase it gets deleted/modified.
-            # FIXME: should rebuild_list be a separate function?
-            if ! grep "$HOME/$file" $linked_files_list &> /dev/null
-            then
-                echo "$HOME/$file" >> $linked_files_list
-            fi
-        done
+    local install_type=$1
+    shift
+    if [ "$install_type" == "link" ]; then
+        local from_dir=$dotfiles_dir/link
+        local installed_list=$linked_files_list
+        local install_confict_action=$option_link_conflict_action
+        local install_action="ln -s"
+    elif [ "$install_type" == "copy" ]; then
+        local from_dir=$dotfiles_dir/copy
+        local installed_list=$copied_files_list
+        local install_confict_action=$option_copy_conflict_action
+        local install_action="cp_helper"
+    else
+        return 1
     fi
-}
 
-function copy_dotfiles()
-{
-    if test -d $dotfiles_dir/copy
+    if test -d $from_dir
     then
-        echo "[36mCopying dotfiles:[m"
-        for file in $(cd $dotfiles_dir/copy && git ls-files)
+        echo "[36m${install_type}ing dotfiles:[m"
+        for file in $(cd $from_dir && git ls-files)
         do
-            if ! grep "$HOME/$file" $copied_files_list &> /dev/null
+            if ! grep "$HOME/$file" $installed_list &> /dev/null
             then
                 echo "[32m$file[m"
+
+                existing_file_action=$install_confict_action
 
                 # Create parent directories if they don't exist.
                 if test ! -d `dirname ~/$file`
@@ -79,8 +60,6 @@ function copy_dotfiles()
                 # If a file with that name already exists, check with the user
                 if test -e ~/$file
                 then
-                    existing_file_action="$option_copy_conflict_action"
-
                     if [ "$existing_file_action" != "r" ] && \
                         [ "$existing_file_action" != "i" ]
                     then
@@ -91,61 +70,80 @@ function copy_dotfiles()
                     while [ "$existing_file_action" != "r" ] && \
                         [ "$existing_file_action" != "i" ]
                     do
-                        echo "r: Replace it with the version from dotfiles. The"
-                        echo "   current version will be copied to"
-                        echo "   $HOME/.${file}.dotfiles.bak"
+                        echo "r:  Replace it with the version from dotfiles. The"
+                        echo "    current version will be copied to"
+                        echo "    $HOME/.${file}.dotfiles.bak"
+
+                        echo "ra: Same as 'r', but also do so for all" \
+                             " subsequent conflicts."
 
                         echo "i: Ignore it. The current version will be left in"
                         echo "   place and you will not receive this prompt on"
                         echo "   subsequent runs."
 
+                        echo "i: Same as 'i', but also do so for all" \
+                             " subsequent conflicts."
+
                         read existing_file_action
                     done
 
-                    if [ "$existing_file_action" == "r" ]
-                    then
+                    if [ "${existing_file_action:0:1}" == "r" ]; then
                         mv ~/$file ~/$file.dotfiles.bak
-                    fi
-                fi
-
-                if [ "$existing_file_action" != "i" ]
-                then
-                    # This is here to remove broken symlinks.
-                    rm -rf $HOME/$file
-
-                    if test -d $dotfiles_dir/copy/$file
-                    then
-                        # We have a submodule. Time to do some magic.
-                        cp -r $dotfiles_dir/copy/$file ~/$file
-
-                        # First check to make sure .git is there. Might not be
-                        # if they tried to run without updating submodules.
-                        if test -e $dotfiles_dir/copy/$file/.git
-                        then
-                            # If it's not a directory, means we're working with
-                            # the post 1.7.8 spec and need to copy the git data
-                            # from the parent repository.
-                            if ! test -d $dotfiles_dir/copy/$file/.git
-                            then
-                                sm_git_path=`cut -d' ' -f2 \
-                                    $dotfiles_dir/copy/$file/.git`
-
-                                rm -f ~/$file/.git
-
-                                cp -r $dotfiles_dir/copy/$file/$sm_git_path \
-                                    ~/$file/.git
-                            fi
+                        if [ "${existing_file_action:1:1}" == "a" ]; then
+                            $install_confict_action="r"
                         fi
-                    else
-                        # Not a submodule, just copy it.
-                        cp $dotfiles_dir/copy/$file ~/$file
+                    elif [ "${existing_file_action:0:1}" == "i" ];then
+                        if [ "${existing_file_action:1:1}" == "a" ]; then
+                            $install_confict_action="r"
+                        fi
+                        echo "$HOME/$file" >> $copied_files_list
+                        continue
                     fi
                 fi
 
-                # Store that we copied this file so we don't do it next time.
-                echo "$HOME/$file" >> $copied_files_list
+                # This is here to remove broken symlinks.
+                rm -rf $HOME/$file
+
+                if $install_action $from_dir/$file $HOME/$file; then
+                    # Record file as successfully installed.
+                    echo "$HOME/$file" >> $copied_files_list
+                fi
             fi
         done
+    fi
+}
+
+# This is to handle submodules
+function cp_helper()
+{
+    src=$1
+    dest=$2
+
+    if test -d $src; then
+        # We have a submodule. Time to do some magic.
+        # First check to make sure .git is there. Might not be
+        # if they tried to run without updating submodules.
+        if ! test -e $src/.git; then
+            ( cd $dotfiles_dir && git submodule init && \
+                git submodule update --recursive ) &> /dev/null
+            if ! test -e $src/.git; then
+                # Still not there, not sure what's going on. Abort.
+                return 1
+            fi
+        fi
+        cp -r $src $dest
+        # If it's not a directory, means we're working with
+        # the post 1.7.8 spec and need to copy the git data
+        # from the parent repository.
+        if ! test -d $src/.git
+        then
+            sm_git_path=`cut -d' ' -f2 $src/.git`
+            # cp -r $dotfiles_dir/copy/$file/$sm_git_path ~/$file/.git
+            cp -r $src/$sm_git_path $dest/.git
+        fi
+    else
+        # Not a submodule, just copy it.
+        cp $src $dest
     fi
 }
 
@@ -191,26 +189,16 @@ function print_help()
     echo "--remove-all:        Remove copied and linked files, and hook."
 }
 
-function source_pre_scripts()
+function source_scripts()
 {
-    # Now we source any pre scripts
-    if test -d $dotfiles_dir/pre
-    then
-        for script in $(ls $dotfiles_dir/pre)
+    if ! test -d $1; then
+        return 1
+    else
+        local source_dir=$1
+        shift
+        for script in $(ls $source_dir)
         do
-            source $dotfiles_dir/pre/$script
-        done
-    fi
-}
-
-function source_post_scripts()
-{
-    # Now we source any post scripts
-    if test -d $dotfiles_dir/post
-    then
-        for script in $(ls $dotfiles_dir/post)
-        do
-            source $dotfiles_dir/post/$script
+            source $source_dir/$script
         done
     fi
 }
@@ -220,7 +208,13 @@ function install_post_merge_hook()
     if test ! -f $dotfiles_dir/.git/hooks/post-merge
     then
         echo "[36mInstalling post merge hook.[m"
-        hook="$dotfiles_dir/.git/hooks/post-merge"
+        local hook="$dotfiles_dir/.git/hooks/post-merge"
+        if test -e $hook; then
+            echo "Previous post-merge hook found. It will be backed up to " \
+                "${hook}.bak"
+            mv $hook ${hook}.bak
+        fi
+        rm -rf $hook
         echo "#!/usr/bin/env bash" > $hook
         echo "( cd $dotfiles_dir && git submodule update --init --recursive )" \
             >> $hook
@@ -361,17 +355,17 @@ fi
 
 if [[ "$option_pre_scripts" == "true" ]]
 then
-    source_pre_scripts $@
+    source_scripts $dotfiles_dir/pre $@
 fi
 
 if [[ "$option_link_files" == "true" ]]
 then
-    link_dotfiles
+    install_files 'link'
 fi
 
 if [[ "$option_copy_files" == "true" ]]
 then
-    copy_dotfiles
+    install_files 'copy'
 fi
 
 # Unless told otherwise, we install a post merge hook here.
@@ -384,5 +378,5 @@ remove_dead_links
 
 if [[ "$option_post_scripts" == "true" ]]
 then
-    source_post_scripts $@
+    source_scripts $dotfiles_dir/post $@
 fi
