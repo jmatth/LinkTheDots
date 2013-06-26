@@ -11,9 +11,9 @@ option_post_scripts=true
 option_link_files=true
 option_copy_files=true
 option_update_submodules=true
-option_remove_hook=false
-option_remove_links=false
-option_remove_copies=false
+option_remove_hook=true
+option_remove_links=true
+option_remove_copies=true
 
 # p: prompt, r: replace, i: ignore
 option_copy_conflict_action="p"
@@ -96,7 +96,7 @@ function install_files()
                         if [ "${existing_file_action:1:1}" == "a" ]; then
                             $install_confict_action="r"
                         fi
-                        echo "$HOME/$file" >> $copied_files_list
+                        echo "$HOME/$file" >> $installed_list
                         continue
                     fi
                 fi
@@ -106,7 +106,7 @@ function install_files()
 
                 if $install_action $from_dir/$file $HOME/$file; then
                     # Record file as successfully installed.
-                    echo "$HOME/$file" >> $copied_files_list
+                    echo "$HOME/$file" >> $installed_list
                 fi
             fi
         done
@@ -233,6 +233,11 @@ function install_post_merge_hook()
     fi
 }
 
+function update_dotfiles()
+{
+    cd $dotfiles_dir && git pull
+}
+
 function remove_dead_links()
 {
     if test -r $linked_files_list
@@ -326,13 +331,33 @@ else
     copied_files_list=$HOME/.dotfiles_copied
 fi
 
+# The fist argument should tell us what we're going to do.
+task=`echo "$1" | awk '{print tolower($0)}'`
+shift
 check_ltd_args $@
 
-# If we're removing anything then do that and exit.
-# FIXME: is there a better way to handle this?
-if [[ "$option_remove_hook" == "true" || "$option_remove_links" == "true" || \
-    "$option_remove_copies" == "true" ]]
-then
+if [ "$task" == "help" ]; then
+    print_help
+    exit 0
+elif [ "$task" == "install" ]; then
+    if [[ "$option_pre_scripts" == "true" ]]
+    then
+        source_scripts $dotfiles_dir/pre $@
+    fi
+    if [[ "$option_link_files" == "true" ]]
+    then
+        install_files 'link'
+    fi
+    if [[ "$option_copy_files" == "true" ]]
+    then
+        install_files 'copy'
+    fi
+    if [[ "$option_post_scripts" == "true" ]]
+    then
+        source_scripts $dotfiles_dir/post $@
+    fi
+    remove_dead_links
+elif [ "$task" == "remove" ]; then
     if [[ "$option_remove_hook" == "true" ]]
     then
         remove_post_merge_hook
@@ -345,38 +370,20 @@ then
     then
         remove_dotfiles "copied"
     fi
-    exit 0
+elif [ "$task" == "update" ]; then
+    update_dotfiles
+else
+    print_help
+    exit 1
 fi
 
-if [[ "option_update_submodules" == "true" ]]
-then
-    (cd $dotfiles_dir && git submodule init && git submodule update)
-fi
+# if [[ "option_update_submodules" == "true" ]]
+# then
+#     (cd $dotfiles_dir && git submodule init && git submodule update)
+# fi
 
-if [[ "$option_pre_scripts" == "true" ]]
-then
-    source_scripts $dotfiles_dir/pre $@
-fi
-
-if [[ "$option_link_files" == "true" ]]
-then
-    install_files 'link'
-fi
-
-if [[ "$option_copy_files" == "true" ]]
-then
-    install_files 'copy'
-fi
-
-# Unless told otherwise, we install a post merge hook here.
-if [[ "$option_install_hook" == "true" ]]
-then
-    install_post_merge_hook $@
-fi
-
-remove_dead_links
-
-if [[ "$option_post_scripts" == "true" ]]
-then
-    source_scripts $dotfiles_dir/post $@
-fi
+# # Unless told otherwise, we install a post merge hook here.
+# if [[ "$option_install_hook" == "true" ]]
+# then
+#     install_post_merge_hook $@
+# fi
