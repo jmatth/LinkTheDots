@@ -93,7 +93,7 @@ function install_files()
                         if [ "${existing_file_action:1:1}" == "a" ]; then
                             $install_confict_action="r"
                         fi
-                        echo "$HOME/$file" >> $installed_list
+                        echo "$HOME/$file" >> $ignored_files_list
                         continue
                     fi
                 fi
@@ -264,6 +264,7 @@ function remove_dotfiles()
 {
     if [[ "$1" == "copied" ]]; then
         list_file=$copied_files_list
+        rm -f $ignored_files_list
     else
         list_file=$linked_files_list
     fi
@@ -313,10 +314,12 @@ if ( cd $script_dir && is_submodule ); then
         --show-toplevel 2> /dev/null ) ) && git rev-parse --show-toplevel )
     linked_files_list=$script_dir/dotfiles_linked
     copied_files_list=$script_dir/dotfiles_copied
+    ignored_files_list=$script_dir/dotfiles_ignored
 else
     dotfiles_dir=$( cd $script_dir && git rev-parse --show-toplevel )
     linked_files_list=$HOME/.dotfiles_linked
     copied_files_list=$HOME/.dotfiles_copied
+    ignored_files_list=$HOME/.dotfiles_ignored
 fi
 
 hook_file=$dotfiles_dir/.git/hooks/post-merge
