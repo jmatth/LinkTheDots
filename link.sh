@@ -42,36 +42,29 @@ function install_files()
         return 1
     fi
 
-    if test -d $from_dir
-    then
+    if test -d $from_dir; then
         echo "[36m${install_type}ing dotfiles:[m"
-        for file in $(cd $from_dir && git ls-files)
-        do
-            if ! grep "$HOME/$file" $installed_list &> /dev/null
-            then
+        for file in $(cd $from_dir && git ls-files); do
+            if ! grep "$HOME/$file" $installed_list &> /dev/null; then
                 echo "[32m$file[m"
 
                 existing_file_action=$install_confict_action
 
                 # Create parent directories if they don't exist.
-                if test ! -d `dirname ~/$file`
-                then
+                if test ! -d `dirname ~/$file`; then
                     mkdir -p `dirname ~/$file`
                 fi
 
                 # If a file with that name already exists, check with the user
-                if test -e ~/$file
-                then
+                if test -e ~/$file; then
                     if [ "$existing_file_action" != "r" ] && \
-                        [ "$existing_file_action" != "i" ]
-                    then
+                            [ "$existing_file_action" != "i" ]; then
                         echo "[33mFile $HOME/$file already exists.[m"
                         echo "[33mPlease choose action to take:[m"
                     fi
 
                     while [ "$existing_file_action" != "r" ] && \
-                        [ "$existing_file_action" != "i" ]
-                    do
+                            [ "$existing_file_action" != "i" ]; do
                         echo "r:  Replace it with the version from dotfiles. The"
                         echo "    current version will be copied to"
                         echo "    $HOME/.${file}.dotfiles.bak"
@@ -83,8 +76,10 @@ function install_files()
                         echo "   place and you will not receive this prompt on"
                         echo "   subsequent runs."
 
-                        echo "i: Same as 'i', but also do so for all" \
+                        echo "ia: Same as 'i', but also do so for all" \
                              " subsequent conflicts."
+
+                        echo -n "[r/ra/i/ia]: "
 
                         read existing_file_action
                     done
@@ -137,8 +132,7 @@ function cp_helper()
         # If it's not a directory, means we're working with
         # the post 1.7.8 spec and need to copy the git data
         # from the parent repository.
-        if ! test -d $src/.git
-        then
+        if ! test -d $src/.git; then
             sm_git_path=`cut -d' ' -f2 $src/.git`
             rm -rf $dest/.git
             cp -r $src/$sm_git_path $dest/.git
@@ -152,8 +146,7 @@ function cp_helper()
 
 function check_ltd_args()
 {
-    for arg in $@
-    do
+    for arg in $@; do
         case $arg in
             "--help") print_help; exit 0;;
             "--skip-hook") option_install_hook=false;;
@@ -209,10 +202,8 @@ function source_scripts()
 function check_install_hook()
 {
     if ! test -e $hook_file; then
-        echo "Install post-merge hook to install any new dotfiles on each" \
-            " pull [Y/n]:"
-        local install_hook_choice
-        read install_hook_choice
+        echo -n "Install post-merge hook to install any new dotfiles on each pull [Y/n]: "
+        read local install_hook_choice
         if [ "$(echo "$install_hook_choice" | awk '{print tolower($0)}')" != \
             'n' ]; then
             install_hook $@
@@ -245,17 +236,13 @@ function update_dotfiles()
 
 function remove_dead_links()
 {
-    if test -r $linked_files_list
-    then
+    if test -r $linked_files_list; then
         current_line_number=1
 
         echo "[33mRemoving broken links:[m"
-        for file in `cat $linked_files_list`
-        do
-            if test -h $file
-            then
-                if test ! -r $file
-                then
+        for file in `cat $linked_files_list`; do
+            if test -h $file; then
+                if test ! -r $file; then
                     echo "[31m$file[m"
                     unlink $file
                     sed -i -e $current_line_number"d" $linked_files_list
@@ -267,8 +254,7 @@ function remove_dead_links()
             fi
         done
 
-        if test ! -s $linked_files_list
-        then
+        if test ! -s $linked_files_list; then
             rm $linked_files_list
         fi
     fi
@@ -276,24 +262,20 @@ function remove_dead_links()
 
 function remove_dotfiles()
 {
-    if [[ "$1" == "copied" ]]
-    then
+    if [[ "$1" == "copied" ]]; then
         list_file=$copied_files_list
     else
         list_file=$linked_files_list
     fi
 
-    if test -s $list_file
-    then
+    if test -s $list_file; then
         echo "[33mRemoving all $1 files:[m"
-        for file in `cat $list_file`
-        do
+        for file in `cat $list_file`; do
             echo "[31m$file[m"
             rm -rf $file
 
             # Restore backup file if it exists.
-            if test -e $file.dotfiles.bak
-            then
+            if test -e $file.dotfiles.bak; then
                 mv $file.dotfiles.bak $file
             fi
         done
@@ -303,8 +285,7 @@ function remove_dotfiles()
 
 function remove_hook()
 {
-    if test -e $hook_file && [ "$(awk 'NR==2' $hook_file)" == "$hook_id_line" ]
-    then
+    if test -e $hook_file && [ "$(awk 'NR==2' $hook_file)" == "$hook_id_line" ]; then
         echo "[33mRemoving post-merge hook.[m"
         rm -f $hook_file
     fi
@@ -327,8 +308,7 @@ script_dir=$( cd $( dirname $0 ) && pwd )
 
 # Check if we're in a submodule and set directories accordingly.
 # Also decide where to keep the list of linked/copied files.
-if ( cd $script_dir && is_submodule )
-then
+if ( cd $script_dir && is_submodule ); then
     dotfiles_dir=$( cd $( dirname $( cd "$script_dir" && git rev-parse \
         --show-toplevel 2> /dev/null ) ) && git rev-parse --show-toplevel )
     linked_files_list=$script_dir/dotfiles_linked
@@ -350,38 +330,30 @@ if [ "$task" == "help" ]; then
     print_help
     exit 0
 elif [ "$task" == "install" ]; then
-    if [[ "$option_pre_scripts" == "true" ]]
-    then
+    if [[ "$option_pre_scripts" == "true" ]]; then
         source_scripts $dotfiles_dir/pre $@
     fi
-    if [[ "$option_link_files" == "true" ]]
-    then
+    if [[ "$option_link_files" == "true" ]]; then
         install_files 'link'
     fi
-    if [[ "$option_copy_files" == "true" ]]
-    then
+    if [[ "$option_copy_files" == "true" ]]; then
         install_files 'copy'
     fi
-    if [[ "$option_install_hook" == "true" ]]
-    then
+    if [[ "$option_install_hook" == "true" ]]; then
         check_install_hook $@
     fi
-    if [[ "$option_post_scripts" == "true" ]]
-    then
+    if [[ "$option_post_scripts" == "true" ]]; then
         source_scripts $dotfiles_dir/post $@
     fi
     remove_dead_links
 elif [ "$task" == "remove" ]; then
-    if [[ "$option_remove_hook" == "true" ]]
-    then
+    if [[ "$option_remove_hook" == "true" ]]; then
         remove_hook
     fi
-    if [[ "$option_remove_links" == "true" ]]
-    then
+    if [[ "$option_remove_links" == "true" ]]; then
         remove_dotfiles "linked"
     fi
-    if [[ "$option_remove_copies" == "true" ]]
-    then
+    if [[ "$option_remove_copies" == "true" ]]; then
         remove_dotfiles "copied"
     fi
 elif [ "$task" == "update" ]; then
