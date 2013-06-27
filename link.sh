@@ -19,7 +19,7 @@ option_remove_copies=true
 
 # p: prompt, r: replace, i: ignore
 option_copy_conflict_action="p"
-option_link_conflict_action="p"
+option_link_conflict_action="r"
 
 # Locations to store lists of installed files if installed
 # in a submodule
