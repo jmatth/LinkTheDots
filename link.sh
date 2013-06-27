@@ -390,8 +390,3 @@ else
     print_help
     exit 1
 fi
-
-# if [[ "option_update_submodules" == "true" ]]
-# then
-#     (cd $dotfiles_dir && git submodule init && git submodule update)
-# fi
