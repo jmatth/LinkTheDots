@@ -64,7 +64,9 @@ function install_files()
                     fi
 
                     while [ "$existing_file_action" != "r" ] && \
-                            [ "$existing_file_action" != "i" ]; do
+                            [ "$existing_file_action" != "ra" ] && \
+                            [ "$existing_file_action" != "i" ] && \
+                            [ "$existing_file_action" != "ia" ]; do
                         echo "r:  Replace it with the version from dotfiles. The"
                         echo "    current version will be copied to"
                         echo "    $HOME/.${file}.dotfiles.bak"
@@ -87,11 +89,11 @@ function install_files()
                     if [ "${existing_file_action:0:1}" == "r" ]; then
                         mv ~/$file ~/$file.dotfiles.bak
                         if [ "${existing_file_action:1:1}" == "a" ]; then
-                            $install_confict_action="r"
+                            install_confict_action="r"
                         fi
                     elif [ "${existing_file_action:0:1}" == "i" ];then
                         if [ "${existing_file_action:1:1}" == "a" ]; then
-                            $install_confict_action="r"
+                            install_confict_action="r"
                         fi
                         echo "$HOME/$file" >> $ignored_files_list
                         continue
