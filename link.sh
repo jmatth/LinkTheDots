@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Get script directory
+script_dir=$( cd $( dirname $0 ) && pwd )
 
 #--------------------------------------------------------------------------
 # Here we declare some settings variables
@@ -19,6 +21,22 @@ option_remove_copies=true
 option_copy_conflict_action="p"
 option_link_conflict_action="p"
 
+# Locations to store lists of installed files if installed
+# in a submodule
+linked_list_location_sub=$script_dir/dotfiles_linked
+copied_list_location_sub=$script_dir/dotfiles_copied
+ignored_list_location_sub=$script_dir/dotfiles_ignored
+
+# Locations to store lists of installed files if installed
+# in the main dotfiles repo
+linked_list_location_no_sub=$HOME/.dotfiles_linked
+copied_list_location_no_sub=$HOME/.dotfiles_copied
+ignored_list_location_no_sub=$HOME/.dotfiles_ignored
+
+# Where insall the post-merge hook
+hook_file=$dotfiles_dir/.git/hooks/post-merge
+# This line will be added as the second line in the hook,
+# so that it can be positively identified if remove is called
 hook_id_line="#ltd_hook"
 
 #--------------------------------------------------------------------------
@@ -303,28 +321,20 @@ function is_submodule()
 #--------------------------------------------------------------------------
 # Start executing the functions
 #--------------------------------------------------------------------------
-# FIXME: this is here and not in a function so that script_dir and dotfiles_dir
-# will be global in the script. Is there a better way to get them into the
-# global scope without exporting?
-# Get script directory
-script_dir=$( cd $( dirname $0 ) && pwd )
-
 # Check if we're in a submodule and set directories accordingly.
 # Also decide where to keep the list of linked/copied files.
 if ( cd $script_dir && is_submodule ); then
     dotfiles_dir=$( cd $( dirname $( cd "$script_dir" && git rev-parse \
         --show-toplevel 2> /dev/null ) ) && git rev-parse --show-toplevel )
-    linked_files_list=$script_dir/dotfiles_linked
-    copied_files_list=$script_dir/dotfiles_copied
-    ignored_files_list=$script_dir/dotfiles_ignored
+    linked_files_list=$linked_list_location_sub
+    copied_files_list=$copied_list_location_sub
+    ignored_files_list=$ignored_list_location_sub
 else
     dotfiles_dir=$( cd $script_dir && git rev-parse --show-toplevel )
-    linked_files_list=$HOME/.dotfiles_linked
-    copied_files_list=$HOME/.dotfiles_copied
-    ignored_files_list=$HOME/.dotfiles_ignored
+    linked_files_list=$linked_list_location_no_sub
+    copied_files_list=$copied_list_location_no_sub
+    ignored_files_list=$ignored_list_location_no_sub
 fi
-
-hook_file=$dotfiles_dir/.git/hooks/post-merge
 
 # The fist argument should tell us what we're going to do.
 task=`echo "$1" | awk '{print tolower($0)}'`
