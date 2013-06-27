@@ -19,6 +19,8 @@ option_remove_copies=true
 option_copy_conflict_action="p"
 option_link_conflict_action="p"
 
+hook_id_line="#ltd_hook"
+
 #--------------------------------------------------------------------------
 # Now declare our functions
 #--------------------------------------------------------------------------
@@ -204,34 +206,36 @@ function source_scripts()
     fi
 }
 
-function install_post_merge_hook()
+function check_install_hook()
 {
-    if test ! -f $dotfiles_dir/.git/hooks/post-merge
-    then
-        echo "[36mInstalling post merge hook.[m"
-        local hook="$dotfiles_dir/.git/hooks/post-merge"
-        if test -e $hook; then
-            echo "Previous post-merge hook found. It will be backed up to " \
-                "${hook}.bak"
-            mv $hook ${hook}.bak
+    if ! test -e $hook_file; then
+        echo "Install post-merge hook to install any new dotfiles on each" \
+            " pull [Y/n]:"
+        local install_hook_choice
+        read install_hook_choice
+        if [ `echo "$install_hook_choice" | awk '{print tolower($0)}'` != 'n' ]
+        then
+            install_hook $@
+        else
+            touch $hook_file
         fi
-        rm -rf $hook
-        echo "#!/usr/bin/env bash" > $hook
-        echo "( cd $dotfiles_dir && git submodule update --init --recursive )" \
-            >> $hook
-
-        # if this script was run with any arguments then we want
-        # to keep them when it's run by the hook.
-        echo "$script_dir/`basename $0` $@" >> $hook
-
-        # Make it executable
-        chmod 755 $hook
-
-        # This seems to be the first run, so we'll go ahead
-        # and initialize the submodules.
-        echo "[36mAssuming submodules are empty, initializing now:[m"
-        ( cd $dotfiles_dir && git submodule update --init --recursive )
     fi
+}
+
+function install_hook()
+{
+    echo "[36mInstalling post merge hook.[m"
+    echo "#!/usr/bin/env bash" > $hook_file
+    echo $hook_id_line >> $hook_file
+    echo "( cd $dotfiles_dir && git submodule update --init --recursive )" \
+        >> $hook_file
+
+    # if this script was run with any arguments then we want
+    # to keep them when it's run by the hook.
+    echo "$script_dir/`basename $0` $@" >> $hook_file
+
+    # Make it executable
+    chmod 755 $hook_file
 }
 
 function update_dotfiles()
@@ -297,10 +301,12 @@ function remove_dotfiles()
     fi
 }
 
-function remove_post_merge_hook()
+function remove_hook()
 {
-    echo "[33mRemoving post-merge hook.[m"
-    rm -f $dotfiles_dir/.git/hooks/post-merge
+    if test -e $hook_file && [ `awk 'NR==2' $hook_file` == $hook_id_line ]; then
+        echo "[33mRemoving post-merge hook.[m"
+        rm -f $hook_file
+    fi
 }
 
 function is_submodule()
@@ -332,6 +338,8 @@ else
     copied_files_list=$HOME/.dotfiles_copied
 fi
 
+hook_file=$dotfiles_dir/.git/hooks/post-merge
+
 # The fist argument should tell us what we're going to do.
 task=`echo "$1" | awk '{print tolower($0)}'`
 shift
@@ -353,6 +361,10 @@ elif [ "$task" == "install" ]; then
     then
         install_files 'copy'
     fi
+    if [[ "$option_install_hook" == "true" ]]
+    then
+        check_install_hook $@
+    fi
     if [[ "$option_post_scripts" == "true" ]]
     then
         source_scripts $dotfiles_dir/post $@
@@ -361,7 +373,7 @@ elif [ "$task" == "install" ]; then
 elif [ "$task" == "remove" ]; then
     if [[ "$option_remove_hook" == "true" ]]
     then
-        remove_post_merge_hook
+        remove_hook
     fi
     if [[ "$option_remove_links" == "true" ]]
     then
@@ -381,10 +393,4 @@ fi
 # if [[ "option_update_submodules" == "true" ]]
 # then
 #     (cd $dotfiles_dir && git submodule init && git submodule update)
-# fi
-
-# # Unless told otherwise, we install a post merge hook here.
-# if [[ "$option_install_hook" == "true" ]]
-# then
-#     install_post_merge_hook $@
 # fi
