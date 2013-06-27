@@ -138,8 +138,9 @@ function cp_helper()
         if ! test -d $src/.git
         then
             sm_git_path=`cut -d' ' -f2 $src/.git`
-            # cp -r $dotfiles_dir/copy/$file/$sm_git_path ~/$file/.git
+            rm -rf $dest/.git
             cp -r $src/$sm_git_path $dest/.git
+            sed -i '/worktree = /d' $dest/.git/config
         fi
     else
         # Not a submodule, just copy it.
