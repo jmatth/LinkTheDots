@@ -213,8 +213,8 @@ function check_install_hook()
             " pull [Y/n]:"
         local install_hook_choice
         read install_hook_choice
-        if [ `echo "$install_hook_choice" | awk '{print tolower($0)}'` != 'n' ]
-        then
+        if [ "$(echo "$install_hook_choice" | awk '{print tolower($0)}')" != \
+            'n' ]; then
             install_hook $@
         else
             touch $hook_file
@@ -303,7 +303,8 @@ function remove_dotfiles()
 
 function remove_hook()
 {
-    if test -e $hook_file && [ `awk 'NR==2' $hook_file` == $hook_id_line ]; then
+    if test -e $hook_file && [ "$(awk 'NR==2' $hook_file)" == "$hook_id_line" ]
+    then
         echo "[33mRemoving post-merge hook.[m"
         rm -f $hook_file
     fi
