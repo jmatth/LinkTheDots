@@ -285,7 +285,7 @@ function remove_dotfiles()
         for file in `cat $list_file`
         do
             echo "[31m$file[m"
-            unlink $file
+            rm -rf $file
 
             # Restore backup file if it exists.
             if test -e $file.dotfiles.bak
