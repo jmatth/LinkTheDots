@@ -33,8 +33,6 @@ linked_list_location_no_sub=$HOME/.dotfiles_linked
 copied_list_location_no_sub=$HOME/.dotfiles_copied
 ignored_list_location_no_sub=$HOME/.dotfiles_ignored
 
-# Where insall the post-merge hook
-hook_file=$dotfiles_dir/.git/hooks/post-merge
 # This line will be added as the second line in the hook,
 # so that it can be positively identified if remove is called
 hook_id_line="#ltd_hook"
@@ -350,6 +348,10 @@ else
     copied_files_list=$copied_list_location_no_sub
     ignored_files_list=$ignored_list_location_no_sub
 fi
+
+# Where insall the post-merge hook
+# This needs to be here so dotfiles_dir is defined.
+hook_file=$dotfiles_dir/.git/hooks/post-merge
 
 # The fist argument should tell us what we're going to do.
 task=`echo "$1" | awk '{print tolower($0)}'`
