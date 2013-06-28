@@ -211,6 +211,8 @@ function print_help()
         echo "    --remove-copies:     Remove all copied files."
         echo "    --remove-all:        Remove copied and linked files, and hook."
         echo "    --help:              Print this message and exit."
+    elif [ "$1" == "update" ]; then
+        echo "Usage: $0 update"
     fi
 }
 
