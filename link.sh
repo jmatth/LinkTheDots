@@ -168,7 +168,7 @@ function check_ltd_args()
 {
     for arg in $@; do
         case $arg in
-            "--help") print_help; exit 0;;
+            "--help") print_help $task; exit 0;;
             "--skip-hook") option_install_hook=false;;
             "--skip-submodules") option_update_submodules=false;;
             "--skip-pre") option_pre_scripts=false;;
@@ -188,21 +188,36 @@ function check_ltd_args()
 
 function print_help()
 {
-    echo "Usage: ./link.sh [OPTIONS]"
-    echo "OPTIONS"
-    echo "--help:              Print this message and exit."
-    echo "--skip-hook:         Don't install post-merge hook."
-    echo "--skip-submodules:   Don't init and update submodules."
-    echo "--skip-pre:          Don't source pre scripts."
-    echo "--skip-post:         Don't source post scripts."
-    echo "--skip-link:         Don't link files in link/."
-    echo "--skip-copy:         Don't copy files in copy/."
-    echo "--copy-replace:      Replace conflicting files during copy."
-    echo "--copy-ignore:       Ignore conflicting files during copy."
-    echo "--remove-hook:       Remove post-merge hook."
-    echo "--remove-links:      Remove all linked files."
-    echo "--remove-copies:     Remove all copied files."
-    echo "--remove-all:        Remove copied and linked files, and hook."
+    if test -z "$1"; then
+        echo "Usage: $0 <command> [<args>]"
+        echo
+        echo "Valid commands are:"
+        echo "install   Install dotfiles into your home directory"
+        echo "remove    Remove installed dotfiles"
+        echo "update    Pull new changes to your dotfiles from git"
+        echo
+        echo "Run $0 <command> --help for help with specific commands."
+        echo "Go to http://github.com/jmatth/LinkTheDots for additional help or to submit issues."
+    elif [ "$1" == "install" ]; then
+        echo "Usage: $0 install [<args>]"
+        echo "args:"
+        echo "    --skip-link:         Don't link files in link/."
+        echo "    --skip-copy:         Don't copy files in copy/."
+        echo "    --skip-hook:         Don't install post-merge hook."
+        echo "    --skip-pre:          Don't source pre scripts."
+        echo "    --skip-post:         Don't source post scripts."
+        echo "    --copy-replace:      Replace conflicting files during copy."
+        echo "    --copy-ignore:       Ignore conflicting files during copy."
+        echo "    --help:              Print this message and exit."
+    elif [ "$1" == "remove" ]; then
+        echo "Usage: $0 remove [<args>]"
+        echo "args:"
+        echo "    --remove-hook:       Remove post-merge hook."
+        echo "    --remove-links:      Remove all linked files."
+        echo "    --remove-copies:     Remove all copied files."
+        echo "    --remove-all:        Remove copied and linked files, and hook."
+        echo "    --help:              Print this message and exit."
+    fi
 }
 
 function source_scripts()
@@ -339,12 +354,18 @@ fi
 # The fist argument should tell us what we're going to do.
 task=`echo "$1" | awk '{print tolower($0)}'`
 shift
-check_ltd_args $@
 
 if [ "$task" == "help" ]; then
     print_help
     exit 0
-elif [ "$task" == "install" ]; then
+elif test -z "$task"; then
+    print_help
+    exit 1
+fi
+
+check_ltd_args $@
+
+if [ "$task" == "install" ]; then
     if [[ "$option_pre_scripts" == "true" ]]; then
         source_scripts $dotfiles_dir/pre $@
     fi
