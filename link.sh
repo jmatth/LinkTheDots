@@ -247,12 +247,9 @@ function install_hook()
     echo "[36mInstalling post merge hook.[m"
     echo "#!/usr/bin/env bash" > $hook_file
     echo $hook_id_line >> $hook_file
-    echo "( cd $dotfiles_dir && git submodule update --init --recursive )" \
-        >> $hook_file
-
-    # if this script was run with any arguments then we want
-    # to keep them when it's run by the hook.
-    echo "$script_dir/`basename $0` $@" >> $hook_file
+    echo "cd $dotfiles_dir" >> $hook_file
+    echo "git submodule init && git submodule update --recursive" >> $hook_file
+    echo "$script_dir/$(basename $0) install $@" >> $hook_file
 
     # Make it executable
     chmod 755 $hook_file
