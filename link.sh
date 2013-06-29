@@ -13,9 +13,9 @@ option_post_scripts=true
 option_link_files=true
 option_copy_files=true
 option_update_submodules=true
-option_remove_hook=true
-option_remove_links=true
-option_remove_copies=true
+option_keep_hook=false
+option_keep_links=false
+option_keep_copies=false
 
 # p: prompt, r: replace, i: ignore
 option_copy_conflict_action="p"
@@ -171,11 +171,9 @@ function check_ltd_args()
             "--skip-copy") option_copy_files=false;;
             "--copy-replace") option_copy_conflict_action="r";;
             "--copy-ignore") option_copy_conflict_action="i";;
-            "--remove-hook") option_remove_hook=true;;
-            "--remove-links") option_remove_links=true;;
-            "--remove-copies") option_remove_copies=true;;
-            "--remove-all") option_remove_hook=true; \
-                option_remove_links=true; option_remove_copies=true;;
+            "--keep-hook") option_keep_hook=true;;
+            "--keep-links") option_keep_links=true;;
+            "--keep-copies") option_keep_copies=true;;
         esac
     done
 }
@@ -206,10 +204,9 @@ function print_help()
     elif [ "$1" == "remove" ]; then
         echo "Usage: $0 remove [<args>]"
         echo "args:"
-        echo "    --remove-hook:       Remove post-merge hook."
-        echo "    --remove-links:      Remove all linked files."
-        echo "    --remove-copies:     Remove all copied files."
-        echo "    --remove-all:        Remove copied and linked files, and hook."
+        echo "    --keep-hook:         Remove post-merge hook."
+        echo "    --keep-links:        Remove all linked files."
+        echo "    --keep-copies:       Remove all copied files."
         echo "    --help:              Print this message and exit."
     elif [ "$1" == "update" ]; then
         echo "Usage: $0 update"
@@ -380,13 +377,13 @@ if [ "$task" == "install" ]; then
     fi
     remove_dead_links
 elif [ "$task" == "remove" ]; then
-    if [[ "$option_remove_hook" == "true" ]]; then
+    if [[ "$option_keep_hook" == "false" ]]; then
         remove_hook
     fi
-    if [[ "$option_remove_links" == "true" ]]; then
+    if [[ "$option_keep_links" == "false" ]]; then
         remove_dotfiles "linked"
     fi
-    if [[ "$option_remove_copies" == "true" ]]; then
+    if [[ "$option_keep_copies" == "false" ]]; then
         remove_dotfiles "copied"
     fi
 elif [ "$task" == "update" ]; then
