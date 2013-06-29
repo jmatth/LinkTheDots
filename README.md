@@ -21,11 +21,11 @@ what to do with each file. In the top of your repo, it looks for:
    Once a file has been copied like this, it will not be overwritten on
    subsequent runs.
 
-3. `pre/` Any files placed here will be sourced at runtime, before any
+3. `hooks/pre/` Any files placed here will be sourced at runtime, before any
    linking. This should contain scripts for accomplishing any special tasks that
    aren't supported out of the box.
 
-4. `post/` Similar to the previous directory, but scripts here are sourced after
+4. `hooks/post/` Similar to the previous directory, but scripts here are sourced after
    all linking and copying is done, as the last action before ltd exits.
 
 For example, if you want to keep `.bashrc` linked to your dotfiles on all your
@@ -37,11 +37,12 @@ should look something like this:
 dotfiles
 ├── copy
 │   └── .ssh
-│        └── config
-├── link
-│   └── .bashrc
-└── pre
-    └── fancyscript.sh
+│       └── config
+├── hooks
+│   └── pre
+│       └── fancyscript.sh
+└── link
+    └── .bashrc
 ```
 
 Once your dotfiles are in the proper places, you can install this script in one
@@ -58,34 +59,15 @@ submodule.
 ###Installation by Copying
 
 If you don't appreciate submodules in your dotfiles, you can always just copy
-the script "link.sh" into the top directory of your dotfiles repo and run it
-from there. The script is written to detect whether or not it is inside a
-submodule, so you can just commit and run.
+the script "link.sh" into your dotfiles repo and run it from there. The script
+is written to detect whether or not it is inside a submodule, so you can just
+commit and run.
 
 
 Usage
 -----
 
-`./link.sh [OPTIONS]`
+`./link.sh <action> [<args>]`
 
-| Option              | Meaning                                   |
-| ------------------- | ----------------------------------------- |
-| `--help`            | Print this message and exit.              |
-| `--skip-hook`       | Don't install post-merge hook.            |
-| `--skip-submodules` | Don't init and update submodules.         |
-| `--skip-pre`        | Don't run pre scripts.                    |
-| `--skip-post`       | Don't run post scripts.                   |
-| `--skip-link`       | Don't link files in link/.                |
-| `--skip-copy`       | Don't copy files in copy/.                |
-| `--copy-replace`    | Replace conflicting files during copy.    |
-| `--copy-ignore`     | Ignore conflicting files during copy.     |
-| `--remove-hook`     | Remove post-merge hook.                   |
-| `--remove-links`    | Remove all linked files.                  |
-| `--remove-copies`   | Remove all copied files.                  |
-| `--remove-all`      | Remove copied and linked files, and hook. |
-
-**NOTE:** All arguments given to `link.sh` are also passed to any custom scripts
-in `source/`, and specifying arguments not listed here will not create an error.
-This way you can write your scripts to respond to these arguments or create a
-completely different set of arguments for them to use without having to modify
-the main script.
+To start linking with the default options, just run `link.sh` from inside your
+dotfiles repo. For a full list of possible actions and their arguments, run `link.sh help`.
