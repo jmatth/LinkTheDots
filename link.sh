@@ -187,6 +187,7 @@ function print_help()
         echo "install   Install dotfiles into your home directory"
         echo "remove    Remove installed dotfiles"
         echo "update    Pull new changes to your dotfiles from git"
+        echo "help      Print this help message and exit."
         echo
         echo "Run $0 <command> --help for help with specific commands."
         echo "Go to http://github.com/jmatth/LinkTheDots for additional help or to submit issues."
