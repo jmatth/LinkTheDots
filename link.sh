@@ -364,7 +364,7 @@ check_ltd_args $@
 
 if [ "$task" == "install" ]; then
     if [[ "$option_pre_scripts" == "true" ]]; then
-        source_scripts $dotfiles_dir/pre $@
+        source_scripts $dotfiles_dir/hooks/pre $@
     fi
     if [[ "$option_link_files" == "true" ]]; then
         install_files 'link'
@@ -376,7 +376,7 @@ if [ "$task" == "install" ]; then
         check_install_hook $@
     fi
     if [[ "$option_post_scripts" == "true" ]]; then
-        source_scripts $dotfiles_dir/post $@
+        source_scripts $dotfiles_dir/hooks/post $@
     fi
     remove_dead_links
 elif [ "$task" == "remove" ]; then
