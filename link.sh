@@ -83,15 +83,15 @@ function install_files()
                             [ "$existing_file_action" != "ra" ] && \
                             [ "$existing_file_action" != "i" ] && \
                             [ "$existing_file_action" != "ia" ]; do
-                        echo "r:  Replace it with the version from dotfiles. The current version will be"
-                        echo "    copied to $HOME/.${file}.dotfiles.bak"
+                        echo "    r:    Replace it with the version from dotfiles. The current version will"
+                        echo "          be copied to $HOME/.${file}.dotfiles.bak"
 
-                        echo "ra: Same as 'r', but also do so for all subsequent conflicts."
+                        echo "    ra:   Same as 'r', but also do so for all subsequent conflicts."
 
-                        echo "i:  Ignore it. The current version will be left in place and you will not"
-                        echo "    receive this prompt on subsequent runs."
+                        echo "    i:    Ignore it. The current version will be left in place and you will"
+                        echo "          not receive this prompt on subsequent runs."
 
-                        echo "ia: Same as 'i', but also do so for all subsequent conflicts."
+                        echo "    ia:   Same as 'i', but also do so for all subsequent conflicts."
 
                         echo -n "[r/ra/i/ia]: "
 
