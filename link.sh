@@ -232,12 +232,14 @@ function check_install_hook()
 {
     if ! test -e $hook_file; then
         echo -n "Install post-merge hook to install any new dotfiles on each pull [Y/n]: "
-        read local install_hook_choice
-        if [ "$(echo "$install_hook_choice" | awk '{print tolower($0)}')" != \
-            'n' ]; then
+        local install_hook_choice
+        read install_hook_choice
+        install_hook_choice=$(echo "$install_hook_choice" | awk '{print tolower($0)}')
+        if [ "$install_hook_choice" != 'n' ]; then
             install_hook $@
         else
-            touch $hook_file
+            echo "#!/usr/bin/env bash" > $hook_file
+            echo "$hook_id_line" >> $hook_file
         fi
     fi
 }
