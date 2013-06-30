@@ -19,6 +19,7 @@ option_update_submodules=true
 option_keep_hook=false
 option_keep_links=false
 option_keep_copies=false
+option_file_prefix="$HOME/"
 
 # p: prompt, r: replace, i: ignore
 option_copy_conflict_action="p"
@@ -43,7 +44,7 @@ hook_id_line="#ltd_hook"
 #--------------------------------------------------------------------------
 # Now declare our functions
 #--------------------------------------------------------------------------
-function install_files()
+function install_dotfiles()
 {
     local install_type=$1
     shift
@@ -64,21 +65,21 @@ function install_files()
     if test -d $from_dir; then
         echo "[36m${install_type}ing dotfiles:[m"
         for file in $(cd $from_dir && git ls-files); do
-            if ! grep "$HOME/$file" $installed_list &> /dev/null; then
+            if ! grep "$option_file_prefix$file" $installed_list &> /dev/null; then
                 echo "[32m$file[m"
 
                 existing_file_action=$install_confict_action
 
                 # Create parent directories if they don't exist.
-                if test ! -d `dirname ~/$file`; then
-                    mkdir -p `dirname ~/$file`
+                if test ! -d `dirname $option_file_prefix$file`; then
+                    mkdir -p `dirname $option_file_prefix$file`
                 fi
 
                 # If a file with that name already exists, check with the user
-                if test -e ~/$file; then
+                if test -e $option_file_prefix$file; then
                     if [ "$existing_file_action" != "r" ] && \
                             [ "$existing_file_action" != "i" ]; then
-                        echo "[33mFile $HOME/$file already exists.[m"
+                        echo "[33mFile $option_file_prefix$file already exists.[m"
                         echo "[33mPlease choose action to take:[m"
                     fi
 
@@ -87,7 +88,7 @@ function install_files()
                             [ "$existing_file_action" != "i" ] && \
                             [ "$existing_file_action" != "ia" ]; do
                         echo "    r:    Replace it with the version from dotfiles. The current version will"
-                        echo "          be copied to $HOME/.${file}.dotfiles.bak"
+                        echo "          be copied to $option_file_prefix.${file}.dotfiles.bak"
 
                         echo "    ra:   Same as 'r', but also do so for all subsequent conflicts."
 
@@ -102,7 +103,7 @@ function install_files()
                     done
 
                     if [ "${existing_file_action:0:1}" == "r" ]; then
-                        mv ~/$file ~/$file.dotfiles.bak
+                        mv $option_file_prefix$file $option_file_prefix$file.dotfiles.bak
                         if [ "${existing_file_action:1:1}" == "a" ]; then
                             install_confict_action="r"
                         fi
@@ -110,17 +111,17 @@ function install_files()
                         if [ "${existing_file_action:1:1}" == "a" ]; then
                             install_confict_action="r"
                         fi
-                        echo "$HOME/$file" >> $ignored_files_list
+                        echo "$option_file_prefix$file" >> $ignored_files_list
                         continue
                     fi
                 fi
 
                 # This is here to remove broken symlinks.
-                rm -rf $HOME/$file
+                rm -rf $option_file_prefix$file
 
-                if $install_action $from_dir/$file $HOME/$file; then
+                if $install_action $from_dir/$file $option_file_prefix$file; then
                     # Record file as successfully installed.
-                    echo "$HOME/$file" >> $installed_list
+                    echo "$option_file_prefix$file" >> $installed_list
                 fi
             fi
         done
@@ -174,6 +175,7 @@ function check_ltd_args()
             "--skip-copy") option_copy_files=false;;
             "--copy-replace") option_copy_conflict_action="r";;
             "--copy-ignore") option_copy_conflict_action="i";;
+            "--prefix="*) option_file_prefix=$(echo $arg | cut -d"=" -f2-);;
             "--keep-hook") option_keep_hook=true;;
             "--keep-links") option_keep_links=true;;
             "--keep-copies") option_keep_copies=true;;
@@ -204,6 +206,7 @@ function print_help()
         echo "    --skip-post:         Don't source post scripts."
         echo "    --copy-replace:      Replace conflicting files during copy."
         echo "    --copy-ignore:       Ignore conflicting files during copy."
+        echo '    --prefix=<path>      Install dotfiles to <path>. $HOME by default.'
         echo "    --help:              Print this message and exit."
     elif [ "$1" == "remove" ]; then
         echo "Usage: $0 remove [<args>]"
@@ -370,10 +373,10 @@ if [ "$task" == "install" ]; then
         source_scripts $dotfiles_dir/hooks/pre $@
     fi
     if [[ "$option_link_files" == "true" ]]; then
-        install_files 'link'
+        install_dotfiles 'link'
     fi
     if [[ "$option_copy_files" == "true" ]]; then
-        install_files 'copy'
+        install_dotfiles 'copy'
     fi
     if [[ "$option_install_hook" == "true" ]]; then
         check_install_hook $@
