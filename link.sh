@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# A script for installing and managing dotfiless.
+# Josh Matthews <josh@jmatthews.us>
+
 # Get script directory
 script_dir=$( cd $( dirname $0 ) && pwd )
 
