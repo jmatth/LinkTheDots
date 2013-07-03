@@ -175,7 +175,7 @@ function check_ltd_args()
             "--skip-copy") option_copy_files=false;;
             "--copy-replace") option_copy_conflict_action="r";;
             "--copy-ignore") option_copy_conflict_action="i";;
-            "--prefix="*) option_file_prefix=$(echo $arg | cut -d"=" -f2-);;
+            "--prefix="*) eval option_file_prefix=$(echo $arg | cut -d"=" -f2-);;
             "--keep-hook") option_keep_hook=true;;
             "--keep-links") option_keep_links=true;;
             "--keep-copies") option_keep_copies=true;;
