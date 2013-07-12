@@ -65,7 +65,9 @@ function install_dotfiles()
     if test -d $from_dir; then
         echo "[36m${install_type}ing dotfiles:[m"
         for file in $(cd $from_dir && git ls-files); do
-            if ! grep "$option_file_prefix$file" $installed_list $ignored_files_list &> /dev/null; then
+            if ! grep "$option_file_prefix$file" $installed_list &> /dev/null \
+                    && ! grep "$option_file_prefix$file" $ignored_files_list \
+                    &> /dev/null; then
                 echo "[32m$file[m"
 
                 existing_file_action=$install_confict_action
