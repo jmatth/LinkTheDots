@@ -256,8 +256,9 @@ function install_hook()
 {
     echo "[36mInstalling post merge hook.[m"
     echo "#!/usr/bin/env bash" > $hook_file
-    echo $hook_id_line >> $hook_file
-    echo "cd $dotfiles_dir" >> $hook_file
+    echo "$hook_id_line" >> $hook_file
+    echo "cd $dotfiles_dir || exit 1" >> $hook_file
+    echo "unset GIT_DIR" >> $hook_file
     echo "git submodule init && git submodule update --recursive" >> $hook_file
     echo "$script_dir/$(basename $0) install $@" >> $hook_file
 
