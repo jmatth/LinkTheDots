@@ -69,5 +69,5 @@ Usage
 
 `./link.sh <action> [<args>]`
 
-To start linking with the default options, just run `link.sh` from inside your
+To start linking with the default options, just run `link.sh install` from inside your
 dotfiles repo. For a full list of possible actions and their arguments, run `link.sh help`.
