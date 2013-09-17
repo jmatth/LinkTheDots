@@ -48,20 +48,21 @@ dotfiles
 Once your dotfiles are in the proper places, you can install this script in one
 of two ways.
 
-###Installation with Submodule (Recommended)
+###Installation with Submodule
 
 To install as a submodule, navigate to the root of your dotfiles repo and run:
 `git submodule add http://github.com/jmatth/LinkTheDots.git ltd`. This will add
-this repo as a submodule in the directory ltd. This method is recommended
-because it will be easy to update to later versions of LTD just by updating the
-submodule.
+this repo as a submodule in the directory ltd. This will make it a bit easier to
+get any future updates to LTD by just updating the submodule.
 
 ###Installation by Copying
 
 If you don't appreciate submodules in your dotfiles, you can always just copy
 the script "link.sh" into your dotfiles repo and run it from there. The script
 is written to detect whether or not it is inside a submodule, so you can just
-commit and run.
+commit and run. Use this method if you don't want to complicate your dotfiles
+with submodules, or want to make modifications (such as changing some of the
+default values at the top of the script).
 
 
 Usage
