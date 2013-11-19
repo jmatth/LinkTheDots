@@ -188,35 +188,43 @@ function check_ltd_args()
 function print_help()
 {
     if test -z "$1"; then
-        echo "Usage: $0 <command> [<args>]"
-        echo
-        echo "Valid commands are:"
-        echo "install   Install dotfiles into your home directory"
-        echo "remove    Remove installed dotfiles"
-        echo "update    Pull new changes to your dotfiles from git"
-        echo "help      Print this help message and exit."
-        echo
-        echo "Run $0 <command> --help for help with specific commands."
-        echo "Go to http://github.com/jmatth/LinkTheDots for additional help or to submit issues."
+        cat <<__EOL__
+Usage: $0 <command> [<args>]
+Valid commands are:
+    install   Install dotfiles into your home directory
+    remove    Remove installed dotfiles
+    update    Pull new changes to your dotfiles from git
+    help      Print this help message and exit.
+
+Run $0 <command> --help for help with specific commands.
+Go to http://github.com/jmatth/LinkTheDots for additional help or to submit issues.
+__EOL__
+
     elif [ "$1" == "install" ]; then
-        echo "Usage: $0 install [<args>]"
-        echo "args:"
-        echo "    --skip-link:         Don't link files in link/."
-        echo "    --skip-copy:         Don't copy files in copy/."
-        echo "    --skip-hook:         Don't install post-merge hook."
-        echo "    --skip-pre:          Don't source pre scripts."
-        echo "    --skip-post:         Don't source post scripts."
-        echo "    --copy-replace:      Replace conflicting files during copy."
-        echo "    --copy-ignore:       Ignore conflicting files during copy."
-        echo '    --prefix=<path>      Install dotfiles to <path>. $HOME by default.'
-        echo "    --help:              Print this message and exit."
+        cat <<__EOL__
+Usage: $0 install [<args>]
+args:
+    --skip-link:         Don't link files in link/.
+    --skip-copy:         Don't copy files in copy/.
+    --skip-hook:         Don't install post-merge hook.
+    --skip-pre:          Don't source pre scripts.
+    --skip-post:         Don't source post scripts.
+    --copy-replace:      Replace conflicting files during copy.
+    --copy-ignore:       Ignore conflicting files during copy.
+    --prefix=<path>      Install dotfiles to <path>. \$HOME by default.
+    --help:              Print this message and exit.
+__EOL__
+
     elif [ "$1" == "remove" ]; then
-        echo "Usage: $0 remove [<args>]"
-        echo "args:"
-        echo "    --keep-hook:         Remove post-merge hook."
-        echo "    --keep-links:        Remove all linked files."
-        echo "    --keep-copies:       Remove all copied files."
-        echo "    --help:              Print this message and exit."
+        cat <<__EOL__
+Usage: $0 remove [<args>]
+args:
+    --keep-hook:         Remove post-merge hook.
+    --keep-links:        Remove all linked files.
+    --keep-copies:       Remove all copied files.
+    --help:              Print this message and exit.
+__EOL__
+
     elif [ "$1" == "update" ]; then
         echo "Usage: $0 update"
     fi
