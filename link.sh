@@ -111,7 +111,7 @@ function install_dotfiles()
                         fi
                     elif [ "${existing_file_action:0:1}" == "i" ];then
                         if [ "${existing_file_action:1:1}" == "a" ]; then
-                            install_confict_action="r"
+                            install_confict_action="i"
                         fi
                         echo "$option_file_prefix$file" >> $ignored_files_list
                         continue
