@@ -80,9 +80,9 @@ function install_dotfiles()
                 # If a file with that name already exists, check with the user
                 if test -e $option_file_prefix$file; then
                     while [ "$existing_file_action" != "r" ] && \
-                            [ "$existing_file_action" != "ra" ] && \
-                            [ "$existing_file_action" != "i" ] && \
-                            [ "$existing_file_action" != "ia" ]; do
+                          [ "$existing_file_action" != "ra" ] && \
+                          [ "$existing_file_action" != "i" ] && \
+                          [ "$existing_file_action" != "ia" ]; do
                     cat <<__EOL__
 [33mFile $option_file_prefix$file already exists.[m
 [33mPlease choose action to take:[m
@@ -98,7 +98,6 @@ function install_dotfiles()
 __EOL__
 
                         echo -n "[r/ra/i/ia]: "
-
                         read existing_file_action
                     done
 
