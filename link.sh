@@ -79,25 +79,23 @@ function install_dotfiles()
 
                 # If a file with that name already exists, check with the user
                 if test -e $option_file_prefix$file; then
-                    if [ "$existing_file_action" != "r" ] && \
-                            [ "$existing_file_action" != "i" ]; then
-                        echo "[33mFile $option_file_prefix$file already exists.[m"
-                        echo "[33mPlease choose action to take:[m"
-                    fi
-
                     while [ "$existing_file_action" != "r" ] && \
                             [ "$existing_file_action" != "ra" ] && \
                             [ "$existing_file_action" != "i" ] && \
                             [ "$existing_file_action" != "ia" ]; do
-                        echo "    r:    Replace it with the version from dotfiles. The current version will"
-                        echo "          be copied to $option_file_prefix.${file}.dotfiles.bak"
+                    cat <<__EOL__
+[33mFile $option_file_prefix$file already exists.[m
+[33mPlease choose action to take:[m
+    r:    Replace it with the version from dotfiles. The current version will"
+          be copied to $option_file_prefix.${file}.dotfiles.bak"
 
-                        echo "    ra:   Same as 'r', but also do so for all subsequent conflicts."
+    ra:   Same as 'r', but also do so for all subsequent conflicts."
 
-                        echo "    i:    Ignore it. The current version will be left in place and you will"
-                        echo "          not receive this prompt on subsequent runs."
+    i:    Ignore it. The current version will be left in place and you will"
+          not receive this prompt on subsequent runs."
 
-                        echo "    ia:   Same as 'i', but also do so for all subsequent conflicts."
+    ia:   Same as 'i', but also do so for all subsequent conflicts."
+__EOL__
 
                         echo -n "[r/ra/i/ia]: "
 
@@ -263,12 +261,14 @@ function check_install_hook()
 function install_hook()
 {
     echo "[36mInstalling post merge hook.[m"
-    echo "#!/usr/bin/env bash" > $hook_file
-    echo "$hook_id_line" >> $hook_file
-    echo "cd $dotfiles_dir || exit 1" >> $hook_file
-    echo "unset GIT_DIR" >> $hook_file
-    echo "git submodule init && git submodule update --recursive" >> $hook_file
-    echo "$script_dir/$(basename $0) install $@" >> $hook_file
+    cat > $hook_file <<__EOL__
+#!/usr/bin/env bash
+$hook_id_line
+cd $dotfiles_dir || exit 1
+unset GIT_DIR
+git submodule init && git submodule update --recursive
+$script_dir/$(basename $0) install $@
+__EOL__
 
     # Make it executable
     chmod 755 $hook_file
